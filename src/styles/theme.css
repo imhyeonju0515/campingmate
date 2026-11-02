@@ -137,4 +137,11 @@ main { padding-bottom: 5.5rem; }
   border-radius: 50%; display: grid; place-items: center; padding: 0; line-height: 1; cursor: pointer; }
 .fav-btn.on { background: var(--sun); }
 .fav-btn.on i { color: #e0245e; }
-.fav-corner { position: absolute; top: .5rem; right: .5rem; z-index: 2; }
+
+/* 이야기 카드: 눌러서 자세히 보기 */
+.story-card { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.story-card:hover, .story-card:focus-visible { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--green); outline: none; }
+
+/* 주소 링크: 눌러서 지도로 이동 */
+.addr-link { color: var(--brand-text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.addr-link:hover { color: #2c5513; }

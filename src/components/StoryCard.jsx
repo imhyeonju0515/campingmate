@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap'
 import StampMark from './StampMark'
+import StoryModal from './StoryModal'
 import { fetchHeritage } from '../api/client'
 import { distKm, getPosition, STAMP_RADIUS_KM } from '../lib/geo'
 import { useT } from '../i18n'
@@ -17,6 +18,7 @@ export default function StoryCard({ story, campId }) {
   const [heritage, setHeritage] = useState([])
   const [fresh, setFresh] = useState(false)
   const [locating, setLocating] = useState(false)
+  const [open, setOpen] = useState(false)
 
   // 키워드가 있는 스팟은 국가유산청에서 관련 유산을 찾아 붙입니다 (실패해도 무시)
   useEffect(() => {
@@ -41,7 +43,9 @@ export default function StoryCard({ story, campId }) {
   }
 
   return (
-    <Card className="h-100">
+    <Card className="h-100 story-card" role="button" tabIndex={0} aria-label={`${story.name} ${t('placeMore')}`}
+      onClick={() => setOpen(true)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true) } }}>
+      <StoryModal story={story} show={open} onHide={() => setOpen(false)} />
       <Card.Body>
         <Row className="align-items-center g-3">
           <Col xs={12} sm>
@@ -60,7 +64,7 @@ export default function StoryCard({ story, campId }) {
               </div>
             )}
           </Col>
-          <Col xs={12} sm="auto" className="d-flex justify-content-center" style={{ minWidth: 110 }}>
+          <Col xs={12} sm="auto" className="d-flex justify-content-center" style={{ minWidth: 110 }} onClick={(e) => e.stopPropagation()}>
             {stamp
               ? <StampMark label={story.name} date={stamp.at.slice(5, 10)} animate={fresh} />
               : (

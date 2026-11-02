@@ -6,6 +6,7 @@ import StoryCard from '../components/StoryCard'
 import ReserveCard from '../components/ReserveCard'
 import ForecastStrip from '../components/ForecastStrip'
 import FavButton from '../components/FavButton'
+import AddressLink from '../components/AddressLink'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
@@ -60,7 +61,7 @@ export default function CampDetail() {
             <FavButton campId={camp.id} />
           </div>
           {camp.intro && <p className="text-muted mb-1">{camp.intro}</p>}
-          {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" />{camp.addr}</div>}
+          {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" /><AddressLink addr={camp.addr} /></div>}
         </Card.Body>
       </Card>
 
@@ -89,7 +90,7 @@ export default function CampDetail() {
               <Col key={p.id}>
                 <Card><Card.Body className="d-flex gap-3 p-2">
                   {p.image && <img src={p.image} alt="" loading="lazy" className="rounded" style={{ width: 64, height: 64, objectFit: 'cover' }} />}
-                  <div className="min-w-0"><div className="fw-bold small text-truncate">{p.title}</div><div className="small text-muted text-truncate">{p.addr}</div></div>
+                  <div className="min-w-0"><div className="fw-bold small text-truncate">{p.title}</div><div className="small text-truncate"><AddressLink addr={p.addr} /></div></div>
                 </Card.Body></Card>
               </Col>
             ))}
