@@ -42,10 +42,13 @@ export default function StoryCard({ story, campId }) {
     }
   }
 
+  // 모달은 카드 "밖"(형제)에 둡니다. 안에 두면 모달 안 클릭이 React 트리를 타고 카드의 onClick 까지 올라가서
+  // 닫기를 눌러도 곧바로 다시 열려 버립니다.
   return (
+    <>
+    <StoryModal story={story} show={open} onHide={() => setOpen(false)} />
     <Card className="h-100 story-card" role="button" tabIndex={0} aria-label={`${story.name} ${t('placeMore')}`}
-      onClick={() => setOpen(true)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true) } }}>
-      <StoryModal story={story} show={open} onHide={() => setOpen(false)} />
+      onClick={() => setOpen(true)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOpen(true) } }}>
       <Card.Body>
         <Row className="align-items-center g-3">
           <Col xs={12} sm>
@@ -79,5 +82,6 @@ export default function StoryCard({ story, campId }) {
         </Row>
       </Card.Body>
     </Card>
+    </>
   )
 }
