@@ -1,21 +1,94 @@
-/* Bootswatch(united) 위에 얹는 최소한의 추가 스타일 — 색은 Bootstrap 변수를 그대로 씁니다 */
+/* Bootswatch(brite) 위에 얹는 스타일 — 팔레트는 맨 위 변수만 바꾸면 전체가 따라옵니다 */
+
+/* ── 색 팔레트: 레몬·유자 노랑 + 라임·잎 초록 (FED24F / FFF449 / B2D959 / 7EC151) ── */
+:root {
+  --brand: #fed24f;          /* 노랑: 버튼 배경 */
+  --brand-rgb: 254, 210, 79;
+  --brand-hover: #ffe07d;
+  --brand-text: #3f7a1c;     /* 글자·링크·아이콘용 진한 초록 (밝은 노랑·연두는 흰 바탕에서 안 읽혀서) */
+  --sun: #fff449;            /* 레몬 노랑: 강조 */
+  --lime: #b2d959;           /* 라임: 보조 */
+  --green: #7ec151;          /* 초록: 상단바·도장·hover 그림자 */
+  --green-rgb: 126, 193, 81;
+  --green-deep: #3f7a1c;
+  --lime-soft: #eef7c8;      /* 말풍선·채팅 배경 */
+  --lime-ink: #2c5513;       /* 말풍선 글자 */
+  --paper: #fffbe3;          /* 페이지 배경 (연한 레몬 크림) */
+  --card: #fffef6;
+
+  /* Bootstrap 변수에 연결 */
+  --bs-primary: var(--brand);
+  --bs-primary-rgb: var(--brand-rgb);
+  --bs-success: var(--green);
+  --bs-success-rgb: var(--green-rgb);
+  --bs-link-color: var(--brand-text);
+  --bs-link-color-rgb: 63, 122, 28;
+  --bs-link-hover-color: #2c5513;
+  --bs-link-hover-color-rgb: 44, 85, 19;
+}
+
+/* ── 폰트: 동글동글 ─────────────────────────────────────────
+   본문 = 고운돋움, 제목·버튼·배지·도장·말풍선 = 주아 (둘 다 index.html 에서 구글 폰트로 불러옴)
+   주아는 굵기가 하나뿐이라 font-synthesis 로 가짜 굵게(번짐)를 막습니다 */
+:root {
+  --font-body: "Gowun Dodum", "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+  --font-round: "Jua", "Gowun Dodum", "Pretendard", system-ui, sans-serif;
+  --bs-font-sans-serif: var(--font-body);
+}
+h1, h2, h3, h4, h5, h6, .navbar-brand, .btn, .badge, .stamp-mark, .bubble, .nav-link {
+  font-family: var(--font-round);
+  font-synthesis: none;
+}
+body { font-size: 1.02rem; letter-spacing: -0.01em; }
+
 body {
-  background-color: #f6efe2;
-  background-image: radial-gradient(rgb(0 0 0 / 0.045) 1px, transparent 1px);
+  background-color: var(--paper);
+  background-image: radial-gradient(rgb(63 122 28 / 0.09) 1px, transparent 1px);
   background-size: 18px 18px;
 }
 main { padding-bottom: 5.5rem; }
 @media (min-width: 768px) { main { padding-bottom: 2rem; } }
 
-/* 여권 페이지 같은 카드 */
-.card { background: #fffaf0; border-color: #e9dfca; }
-.camp-card { transition: transform .15s, box-shadow .15s; }
-.camp-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgb(60 40 10 / .15); }
+/* 글자색으로 쓰이는 주색은 진한 감귤로 (밝은 주황은 글자로는 대비가 낮음) */
+.text-primary { color: var(--brand-text) !important; }
 
-/* 도장 */
+/* 상단바 */
+.navbar.bg-dark { background-color: var(--green) !important; border-bottom: 2px solid #000; }
+.navbar .nav-link, .navbar-brand { color: #000 !important; }
+.navbar .nav-link.active { background: var(--sun); border-radius: .5rem; box-shadow: 0 0 0 2px #000; }
+.navbar .form-select { border-color: #000; }
+
+/* Brite 는 버튼 색을 고정값으로 컴파일해 두어서 주색 버튼류만 따로 덮어씁니다 (글자는 Brite 처럼 검정) */
+.btn-primary {
+  --bs-btn-color: #000; --bs-btn-bg: var(--brand); --bs-btn-border-color: #000;
+  --bs-btn-hover-color: #000; --bs-btn-hover-bg: var(--brand-hover); --bs-btn-hover-border-color: #000;
+  --bs-btn-active-color: #000; --bs-btn-active-bg: var(--brand-hover); --bs-btn-active-border-color: #000;
+  --bs-btn-disabled-color: #000; --bs-btn-disabled-bg: var(--brand); --bs-btn-disabled-border-color: #000;
+  --bs-btn-focus-shadow-rgb: var(--brand-rgb);
+}
+.btn-outline-primary {
+  --bs-btn-color: #000; --bs-btn-border-color: #000;
+  --bs-btn-hover-color: #000; --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: #000;
+  --bs-btn-active-color: #000; --bs-btn-active-bg: var(--brand); --bs-btn-active-border-color: #000;
+  --bs-btn-disabled-color: #000; --bs-btn-disabled-border-color: #000;
+  --bs-btn-focus-shadow-rgb: var(--brand-rgb);
+}
+/* Brite 는 outline 버튼 배경도 라임 고정값으로 칠해 두어서 카드색으로 되돌리고, hover 때만 감귤색 */
+.btn-outline-primary { background-color: var(--card); }
+.btn-outline-primary:hover, .btn-outline-primary:active, .btn-outline-primary.active { background-color: var(--brand); }
+.progress-bar { background-color: var(--brand); }
+.form-check-input:checked { background-color: var(--brand); border-color: #000; }
+.form-control:focus, .form-select:focus { border-color: #000; box-shadow: 0 0 0 .25rem rgba(var(--brand-rgb), .4); }
+
+/* 카드: Brite 의 굵은 검정 테두리 + 단단한 그림자 */
+.card { background: var(--card); border-color: #000; box-shadow: 3px 3px 0 #000; }
+.camp-card { transition: transform .15s, box-shadow .15s; }
+.camp-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--green); }
+
+/* 도장 (잉크는 진한 초록) */
 .stamp-mark {
   display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
-  border: 3px double var(--bs-primary); border-radius: 50%; color: var(--bs-primary);
+  border: 3px double var(--green-deep); border-radius: 50%; color: var(--green-deep);
   text-align: center; transform: rotate(-8deg); line-height: 1.15; font-weight: 800;
 }
 @keyframes stamp-pop {
@@ -29,24 +102,24 @@ main { padding-bottom: 5.5rem; }
 @keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
 .wobble { animation: wobble 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
 
-/* 말풍선 */
-.bubble { position: relative; background: #ffe8d9; color: var(--bs-primary); border-radius: 1rem; padding: .6rem 1rem; font-weight: 600; font-size: .9rem; }
-.bubble::before { content: ""; position: absolute; left: -8px; top: 16px; border: 8px solid transparent; border-right-color: #ffe8d9; border-left: 0; }
+/* 말풍선: 연한 라임 + 검정 테두리 */
+.bubble { position: relative; background: var(--lime-soft); color: var(--lime-ink); border: 2px solid #000; border-radius: 1rem; padding: .55rem 1rem; font-weight: 700; font-size: .9rem; }
+.bubble::before { content: ""; position: absolute; left: -9px; top: 16px; width: 14px; height: 14px; background: var(--lime-soft); border-left: 2px solid #000; border-bottom: 2px solid #000; transform: rotate(45deg); }
 @media (max-width: 767.98px) { .bubble::before { display: none; } }
 
-/* 코스 점선 길 */
-.trail { border-left: 2px dashed var(--bs-primary); margin-left: 1rem; padding-left: 1.75rem; list-style: none; }
+/* 점선 길 */
+.trail { border-left: 2px dashed #000; margin-left: 1rem; padding-left: 1.75rem; list-style: none; }
 .trail > li { position: relative; }
 .trail-num { position: absolute; left: -2.55rem; top: 1rem; width: 1.75rem; height: 1.75rem; border-radius: 50%;
-  background: #212529; color: #fff; font-size: .75rem; font-weight: 700; display: grid; place-items: center; }
+  background: var(--brand); color: #000; border: 2px solid #000; font-size: .75rem; font-weight: 800; display: grid; place-items: center; }
 
 /* 채팅 */
 .chat-box { height: 52vh; overflow-y: auto; }
-.msg { max-width: 85%; border-radius: 1rem; padding: .55rem .9rem; font-size: .92rem; white-space: pre-wrap; }
-.msg.user { align-self: flex-end; background: #212529; color: #fff; }
-.msg.assistant { align-self: flex-start; background: #ffe8d9; }
+.msg { max-width: 85%; border-radius: 1rem; padding: .55rem .9rem; font-size: .92rem; white-space: pre-wrap; border: 2px solid #000; }
+.msg.user { align-self: flex-end; background: var(--brand); color: #000; }
+.msg.assistant { align-self: flex-start; background: var(--lime-soft); }
 
 /* 모바일 하단 탭바 */
-.bottom-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; background: #fffaf0; border-top: 1px solid #e9dfca; }
+.bottom-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; background: var(--card); border-top: 2px solid #000; }
 .bottom-tabs .nav-link { font-size: .65rem; padding: .3rem .15rem; white-space: nowrap; color: #495057; }
-.bottom-tabs .nav-link.active { color: var(--bs-primary); font-weight: 700; }
+.bottom-tabs .nav-link.active { color: var(--green-deep); font-weight: 800; }

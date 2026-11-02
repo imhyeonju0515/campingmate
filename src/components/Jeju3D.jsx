@@ -313,7 +313,7 @@ export default function Jeju3D({ camps = [], stories = [], wind = null, showCamp
   }, [picked?.id, picked?.lat, picked?.lng])   // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div style={{ position: 'relative', height, background: 'linear-gradient(180deg,#fdf3df 0%,#e4f3f1 100%)' }}>
+    <div style={{ position: 'relative', height, background: 'linear-gradient(180deg,#fdf6e3 0%,#e6f3f1 100%)' }}>
       <Canvas shadows camera={{ position: [0, 11, 21], fov: 40 }} dpr={[1, 2]} gl={{ alpha: true }}
         onPointerMissed={() => onPick?.(null)}>
         <hemisphereLight args={['#fff6e0', '#bfe3ee', 0.85]} />

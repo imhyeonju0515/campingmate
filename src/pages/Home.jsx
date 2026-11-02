@@ -42,7 +42,7 @@ export default function Home() {
           <Row className="align-items-center g-4">
             <Col xs={12} md="auto" className="text-center"><Harubang mood={mood} size={130} /></Col>
             <Col>
-              <div className="small fw-bold text-info mb-1">JEJU WINDCAMP</div>
+              <div className="small fw-bold text-info mb-1">JEJU CAMPMATE</div>
               <h1 className="fw-bold">{t('heroTitle')}</h1>
               <p className="text-muted">{t('heroSub')}</p>
               <div className="bubble d-inline-block mb-3">{say}</div>

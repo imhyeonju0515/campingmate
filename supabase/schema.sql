@@ -1,4 +1,4 @@
--- 하르방 바람캠프 — Supabase 테이블
+-- 하르방 campmate — Supabase 테이블
 -- 사용법: Supabase 대시보드 → SQL Editor → New query → 이 파일 내용을 붙여 넣고 Run
 -- 도장(stamps) 기록용입니다. 앱은 도장을 브라우저(localStorage)에도 저장하므로, 이 테이블이 없어도 동작은 합니다.
 

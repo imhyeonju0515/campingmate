@@ -1,4 +1,4 @@
-# 하르방 바람캠프 (Vite + React + Router + Zustand + Bootstrap/Bootswatch + Supabase)
+# 하르방 campmate (Vite + React + Router + Zustand + Bootstrap/Bootswatch(brite) + Supabase)
 
 돌하르방 캐릭터가 오늘의 **바람**을 읽어 제주 캠핑장을 추천하고, 캠핑장 근처 **오름·신화 이야기**에서 도장을 모으는 서비스.
 한국어·English·中文·日本語 지원, AI 하르방(에이전트)이 공공데이터를 도구로 써서 캠핑장을 추천합니다.

@@ -26,7 +26,7 @@ export default function ReserveCard({ camp }) {
         <div className="d-flex flex-wrap gap-2">
           {/* tel: 링크에는 숫자·+ 만 넣습니다 */}
           {tel && <Button href={`tel:${tel.replace(/[^\d+]/g, '')}`} variant="primary"><i className="bi bi-telephone me-1" />{t('call')} · {tel}</Button>}
-          {resveUrl && <Button href={resveUrl} target="_blank" rel="noopener noreferrer" variant="success"><i className="bi bi-box-arrow-up-right me-1" />{t('reserveNow')}</Button>}
+          {resveUrl && <Button href={resveUrl} target="_blank" rel="noopener noreferrer" variant="warning" className="fw-bold"><i className="bi bi-box-arrow-up-right me-1" />{t('reserveNow')}</Button>}
           {homepage && <Button href={homepage} target="_blank" rel="noopener noreferrer" variant="outline-dark"><i className="bi bi-house me-1" />{t('homepage')}</Button>}
         </div>
 
