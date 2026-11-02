@@ -43,9 +43,9 @@ export default function Home() {
       {/* 홈 맨 위: 크레용 그림 장면(한라산·구름·바다에서 솟는 하르방) + 설명·버튼 */}
       <section className="card shadow-sm mb-4 hero-card">
         <HeroScene mood={mood} say={say} title={t('heroTitle')} />
-        <div className="hero-caption text-center p-3 p-md-4">
-          <p className="text-muted mb-3">{t('heroSub')}</p>
-          <div className="d-flex flex-wrap justify-content-center align-items-center gap-3">
+        <div className="hero-caption d-md-flex align-items-center justify-content-between gap-3 text-center text-md-start px-3 py-3 px-md-4">
+          <p className="text-muted mb-3 mb-md-0">{t('heroSub')}</p>
+          <div className="d-flex flex-wrap justify-content-center align-items-center gap-3 flex-shrink-0">
             <Link to="/camps" className="btn btn-primary btn-lg">{t('start')} <i className="bi bi-arrow-right" /></Link>
             <Link to="/map" className="btn btn-outline-primary btn-lg"><i className="bi bi-globe-asia-australia me-1" />{t('map')}</Link>
             <span>{t('progress')} <b className="text-primary">{stamps.length}</b></span>

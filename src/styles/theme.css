@@ -222,7 +222,14 @@ p, .card-text, .text-muted { text-wrap: pretty; }
 :root { --font-hand: "Gaegu", "Jua", system-ui, sans-serif; }
 .hero-card { overflow: hidden; }
 .hero-scene { position: relative; aspect-ratio: 4 / 5; max-height: 620px; width: 100%; overflow: hidden; background: #f3efe6; }
-@media (min-width: 768px) { .hero-scene { aspect-ratio: 16 / 9; } }
+/* PC: 낮고 넓게 — 제목은 왼쪽, 산·하르방은 가운데에서 오른쪽 */
+@media (min-width: 768px) {
+  .hero-scene { aspect-ratio: auto; max-height: none; height: clamp(260px, 25vw, 330px); }
+  .hero-title { left: 4%; right: auto; width: 42%; padding: 0; top: 14%; text-align: left; }
+  .hero-title h1 { font-size: clamp(2rem, 3.6vw, 3.1rem); }
+  .hero-stage { left: 53%; width: clamp(90px, 9vw, 120px); }
+  .hero-tent { left: 63%; width: clamp(38px, 4.4vw, 58px); }
+}
 .hero-sky { position: absolute; inset: 0; background: linear-gradient(#f6f2ea 0%, #ece6da 70%); }
 .hero-paper { position: absolute; inset: 0; pointer-events: none; opacity: .5; mix-blend-mode: multiply; z-index: 6; }
 
@@ -262,7 +269,7 @@ p, .card-text, .text-muted { text-wrap: pretty; }
 /* 말풍선: 하르방 오른쪽 위 하늘 */
 .bubble.hero-bubble { position: absolute; left: 55%; right: 4%; top: 27%; z-index: 5; font-size: .85rem; text-wrap: balance; animation: hero-title-in .8s ease-out 2s both; }
 .bubble.hero-bubble::before { display: block; left: -9px; top: auto; bottom: 10px; }
-@media (min-width: 768px) { .bubble.hero-bubble { left: 58%; right: auto; max-width: 290px; font-size: .95rem; top: 30%; } }
+@media (min-width: 768px) { .bubble.hero-bubble { left: 59.5%; right: auto; max-width: 270px; font-size: .92rem; top: 14%; } }
 
 .hero-caption { background: var(--card); border-top: 2px solid #000; }
 
