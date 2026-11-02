@@ -145,3 +145,8 @@ main { padding-bottom: 5.5rem; }
 /* 주소 링크: 눌러서 지도로 이동 */
 .addr-link { color: var(--brand-text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .addr-link:hover { color: #2c5513; }
+
+/* 주소 옆 복사 아이콘 */
+.addr-wrap { display: inline; }
+.copy-btn { border: 0; background: transparent; color: var(--brand-text); padding: 0 .25rem; margin-left: .2rem; line-height: 1; font-size: 1rem; vertical-align: -1px; cursor: pointer; }
+.copy-btn:hover { color: #2c5513; }
