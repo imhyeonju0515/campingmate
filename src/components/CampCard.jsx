@@ -20,6 +20,8 @@ export default function CampCard({ camp, fit }) {
         <div className="mb-2 d-flex flex-wrap gap-1">
           {camp.types.map((x) => <Badge key={x} bg="light" text="dark">{t(TYPE_KEY[x])}</Badge>)}
           {camp.pet && <Badge bg="light" text="dark"><i className="bi bi-heart-fill text-danger me-1" />{t('pet')}</Badge>}
+          {camp.tel && <Badge bg="light" text="dark" title={t('call')}><i className="bi bi-telephone me-1" />{camp.tel}</Badge>}
+          {camp.resveUrl && <Badge bg="light" text="dark" title={t('reserveNow')}><i className="bi bi-calendar-check text-success" /></Badge>}
         </div>
         <Card.Text className="small text-muted flex-grow-1">{camp.intro || camp.addr}</Card.Text>
         {camp.stories?.length > 0 && (

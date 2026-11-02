@@ -14,6 +14,16 @@ const typesOf = (induty = '') => [
   /글램핑/.test(induty) && 'glamp', /카라반/.test(induty) && 'caravan',
 ].filter(Boolean);
 
+// 외부 API 가 준 URL 은 http(s) 만 허용 (javascript: 같은 값 차단). 스킴이 없으면 https 로 보정
+function safeUrl(u = '') {
+  const s = String(u).trim();
+  if (!s) return '';
+  try {
+    const url = new URL(/^https?:\/\//i.test(s) ? s : `https://${s}`);
+    return /^https?:$/.test(url.protocol) && url.hostname.includes('.') ? url.href : '';
+  } catch { return ''; }
+}
+
 let cache = { at: 0, list: null };   // 고캠핑은 한 번에 많이 받아 오므로 1시간 캐시
 
 async function fetchLive() {
@@ -30,7 +40,10 @@ async function fetchLive() {
       .filter((c) => /제주/.test(`${c.doNm ?? ''}${c.addr1 ?? ''}`))
       .map((c) => ({
         id: String(c.contentId), name: c.facltNm, intro: c.lineIntro || (c.intro ?? '').slice(0, 120),
-        addr: c.addr1, tel: c.tel, homepage: c.homepage, image: c.firstImageUrl,
+        addr: c.addr1, image: c.firstImageUrl,
+        // 연락·예약: tel(전화), homepage(홈페이지), resveUrl(온라인 예약 링크), reserve(예약 방식: 전화·온라인실시간예약·온라인예약대기·현장)
+        tel: String(c.tel ?? '').trim(), homepage: safeUrl(c.homepage), resveUrl: safeUrl(c.resveUrl),
+        reserve: String(c.resveCl ?? '').split(',').map((x) => x.trim()).filter(Boolean),
         region: /서귀포/.test(`${c.sigunguNm ?? ''}${c.addr1 ?? ''}`) ? '서귀포시' : '제주시',
         types: typesOf(c.induty), pet: Boolean(c.animalCmgCl) && !/불가/.test(c.animalCmgCl),
         lat: Number(c.mapY), lng: Number(c.mapX), source: 'gocamping',

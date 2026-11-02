@@ -5,6 +5,10 @@ export const LANGS = { ko: '한국어', en: 'English', zh: '中文', ja: '日本
 // 화면 문구 사전 — 새 문구는 4개 언어를 함께 추가하세요 (없으면 영어 → 한국어 순으로 대체)
 const T = {
   ko: {
+    reserveTitle: '예약·문의', reserveMethod: '예약 방식', call: '전화하기', reserveNow: '온라인 예약', homepage: '홈페이지',
+    r_online: '온라인 실시간 예약', r_phone: '전화 예약', r_wait: '온라인 예약 대기', r_onsite: '현장 접수',
+    noContact: '등록된 연락처·예약 정보가 없어요. 주소로 검색하거나 현지에 직접 문의해 보세요.',
+    reserveNote: '예약 가능 여부와 요금은 캠핑장에 직접 확인하세요. (정보 출처: 한국관광공사 고캠핑)',
     map: '3D 지도', mapTitle: '제주 3D 바람 지도', mapSub: '섬을 돌려 보며 캠핑장·이야기 스팟·오늘의 바람을 한눈에',
     layerCamps: '캠핑장', layerStories: '이야기 스팟', layerWind: '바람 줄기', windNow: '현재 평균 바람', windNone: '풍속 데이터가 없어 바람 줄기를 숨겼어요',
     dragHint: '드래그로 회전 · 휠로 확대 · 핀을 눌러 보세요', pickHint: '지도의 핀을 눌러 보세요',
@@ -36,6 +40,10 @@ const T = {
     back: '캠핑장 목록', notFound: '길을 잃었수다. 없는 페이지예요.', goHome: '홈으로',
   },
   en: {
+    reserveTitle: 'Booking & contact', reserveMethod: 'How to book', call: 'Call', reserveNow: 'Book online', homepage: 'Website',
+    r_online: 'Real-time online booking', r_phone: 'Phone booking', r_wait: 'Online waitlist', r_onsite: 'Walk-in',
+    noContact: 'No contact or booking info registered. Try searching the address or asking locally.',
+    reserveNote: 'Please confirm availability and prices with the campsite. (Source: Korea Tourism Organization GoCamping)',
     map: '3D Map', mapTitle: 'Jeju 3D Wind Map', mapSub: "Spin the island to see campsites, story spots and today's wind at a glance",
     layerCamps: 'Campsites', layerStories: 'Story spots', layerWind: 'Wind streaks', windNow: 'Average wind now', windNone: 'No wind data, so wind streaks are hidden',
     dragHint: 'Drag to rotate · scroll to zoom · tap a pin', pickHint: 'Tap a pin on the map',
@@ -67,6 +75,10 @@ const T = {
     back: 'All campsites', notFound: 'Lost your way? This page does not exist.', goHome: 'Home',
   },
   zh: {
+    reserveTitle: '预约·咨询', reserveMethod: '预约方式', call: '拨打电话', reserveNow: '在线预约', homepage: '官网',
+    r_online: '在线实时预约', r_phone: '电话预约', r_wait: '在线候补', r_onsite: '现场登记',
+    noContact: '没有登记的联系方式或预约信息。请按地址搜索或直接向当地咨询。',
+    reserveNote: '可预约情况和价格请直接向露营地确认。（来源：韩国观光公社 GoCamping）',
     map: '3D 地图', mapTitle: '济州 3D 风之地图', mapSub: '旋转岛屿，一览露营地、故事景点与今日风力',
     layerCamps: '露营地', layerStories: '故事景点', layerWind: '风线', windNow: '当前平均风', windNone: '没有风速数据，已隐藏风线',
     dragHint: '拖动旋转 · 滚轮缩放 · 点按图钉', pickHint: '请点按地图上的图钉',
@@ -98,6 +110,10 @@ const T = {
     back: '露营地列表', notFound: '迷路了？没有这个页面。', goHome: '回首页',
   },
   ja: {
+    reserveTitle: '予約・お問い合わせ', reserveMethod: '予約方法', call: '電話する', reserveNow: 'オンライン予約', homepage: 'ホームページ',
+    r_online: 'オンラインリアルタイム予約', r_phone: '電話予約', r_wait: 'オンライン予約待ち', r_onsite: '現地受付',
+    noContact: '登録された連絡先・予約情報がありません。住所で検索するか現地に直接お問い合わせください。',
+    reserveNote: '空き状況や料金はキャンプ場に直接ご確認ください。（出典：韓国観光公社 GoCamping）',
     map: '3Dマップ', mapTitle: '済州 3D ウィンドマップ', mapSub: '島を回して、キャンプ場・物語スポット・今日の風を一目で',
     layerCamps: 'キャンプ場', layerStories: '物語スポット', layerWind: '風の筋', windNow: '現在の平均風', windNone: '風速データがないため風の筋を隠しました',
     dragHint: 'ドラッグで回転 · ホイールで拡大 · ピンをタップ', pickHint: '地図のピンをタップしてください',

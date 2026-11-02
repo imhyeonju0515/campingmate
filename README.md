@@ -7,8 +7,9 @@
 ```bash
 npm install
 cp .env.example .env.local     # 값 채우기
-npm run dev                    # 화면만 (http://localhost:5173) — 데이터 API 는 동작하지 않음
-vercel dev                     # 화면 + /api 서버 함수 (http://localhost:3000)
+npm run dev:api                # 화면 + /api 서버 함수 (http://localhost:5173) ← 로컬에서는 이걸 쓰세요 (.env.local 을 읽음)
+npm run dev                    # 화면만 — /api 가 없어 캠핑장·날씨·AI 가 동작하지 않음
+vercel dev                     # (선택) Vercel CLI 가 있을 때 화면 + /api (http://localhost:3000)
 ```
 
 ## 공공데이터 API (data.go.kr 에서 활용 신청, 같은 Decoding 키 사용)
@@ -29,18 +30,7 @@ vercel dev                     # 화면 + /api 서버 함수 (http://localhost:3
 `list_camps` · `get_camp_detail` · `list_oreum_stories` · `get_camp_condition` · `search_heritage`
 
 ## Supabase (선택) — 도장은 기본적으로 localStorage 에 저장되고, 설정하면 DB 에도 기록
-```sql
-create table stamps (
-  id bigint generated always as identity primary key,
-  nickname text not null,
-  spot_id text,
-  spot_name text,
-  camp_id text,
-  created_at timestamptz default now()
-);
-alter table stamps enable row level security;
-create policy "open" on stamps for all using (true) with check (true);
-```
+`supabase/schema.sql` 을 Supabase 대시보드 → SQL Editor 에 붙여 넣고 Run 하세요. (stamps 테이블 + 읽기·추가만 허용하는 RLS 정책)
 
 ## 구조
 ```

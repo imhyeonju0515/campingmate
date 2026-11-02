@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Alert, Badge, Card, Col, Row } from 'react-bootstrap'
 import ConditionCard from '../components/ConditionCard'
 import StoryCard from '../components/StoryCard'
+import ReserveCard from '../components/ReserveCard'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
@@ -55,9 +56,10 @@ export default function CampDetail() {
           <h1 className="fw-bold h2">{camp.name}</h1>
           {camp.intro && <p className="text-muted mb-1">{camp.intro}</p>}
           {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" />{camp.addr}</div>}
-          {camp.tel && <div className="small"><i className="bi bi-telephone me-1" />{t('tel')} {camp.tel}</div>}
         </Card.Body>
       </Card>
+
+      {camp.source === 'gocamping' && <ReserveCard camp={camp} />}
 
       {fit && (
         <Alert variant={FIT_VARIANT[fit]} className="fw-semibold">
