@@ -7,6 +7,12 @@ import { searchHeritage } from '../server/heritage.js';
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = 'claude-sonnet-5-5';
 
+// ── 비용·폭주 방지 장치 — 지우지 마세요 ─────────────────────
+// 무한 반복 버그 하나가 예산을 다 쓸 수 있어서, 도구 호출 루프 횟수·답 길이·보내는 대화 기록 수를 모두 제한합니다.
+const MAX_TURNS = 5;        // 에이전트 루프 상한
+const MAX_TOKENS = 1024;    // 답 길이 상한
+const MAX_HISTORY = 10;     // 보내는 대화 기록 수 (최근 10개)
+
 // ① 도구 설명서: Claude는 이 설명만 보고 "어떤 도구를 언제 쓸지" 결정한다
 const tools = [
   {
@@ -80,21 +86,21 @@ const system = (lang) => `너는 '하르방 campmate'의 캐릭터 '하르방이
 - 비 예보나 미세먼지가 나쁘면 함께 알려 준다.
 - 예약·연락처를 물으면 도구 결과의 tel(전화), resveUrl(온라인 예약), homepage, reserve(예약 방식)만 그대로 알려 준다. 값이 비어 있으면 "등록된 정보가 없다"고 말하고 번호나 주소를 지어내지 않는다. 요금·예약 가능 여부는 직접 확인하라고 덧붙인다.
 - 캠핑장을 추천할 때는 가까운 오름·신화 스토리 한 가지를 곁들여 짧게 들려준다.
-- 친근하고 약간 익살스러운 하르방 말투로, 6문장 이내로 짧게.
+- 친근하고 약간 익살스러운 하르방 말투로, 5문장 이내로 짧게.
 - 반드시 ${LANG_NAME[lang] ?? LANG_NAME.ko}로 답한다.`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   const { message, history = [], lang = 'ko' } = req.body ?? {};
   const runTool = makeRunTool(lang);
-  const messages = [...history.slice(-10), { role: 'user', content: message }]; // 최근 10개만 보내 비용 절약
+  const messages = [...history.slice(-MAX_HISTORY), { role: 'user', content: message }]; // 최근 10개만 보내 비용 절약
   const steps = []; // 화면에 "에이전트가 무엇을 했는지" 보여주기용
 
   try {
     // ③ 에이전트 루프: 생각 → 도구 호출 → 결과 확인 → (반복) → 최종 답
-    for (let turn = 0; turn < 6; turn++) {
+    for (let turn = 0; turn < MAX_TURNS; turn++) {
       const r = await client.messages.create({
-        model: MODEL, max_tokens: 1024, system: system(lang), tools, messages,
+        model: MODEL, max_tokens: MAX_TOKENS, system: system(lang), tools, messages,
       });
 
       if (r.stop_reason !== 'tool_use') {
