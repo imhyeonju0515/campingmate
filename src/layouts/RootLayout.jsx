@@ -53,7 +53,7 @@ export default function RootLayout() {
       </main>
 
       <footer className="py-3 border-top bg-light d-none d-md-block">
-        <Container className="small text-muted">데이터: 한국관광공사(고캠핑·TourAPI) · 기상청 · 에어코리아 · 한국천문연구원 · 국가유산청</Container>
+        <Container className="small text-muted">{t('footerData')}</Container>
       </footer>
 
       {/* 모바일 하단 탭바 */}

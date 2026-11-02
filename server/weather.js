@@ -50,6 +50,7 @@ export async function getWeather({ place = '제주시' } = {}) {
   return (upcoming.length ? upcoming : all).slice(0, 6).map(([time, v]) => ({
     place, time, temp: Number(v.TMP), sky: SKY[v.SKY] ?? v.SKY,
     rain: PTY[v.PTY] ?? v.PTY, pop: Number(v.POP),
+    skyCode: Number(v.SKY), ptyCode: Number(v.PTY),                          // 화면이 언어에 맞게 번역할 코드
     wind: Number(v.WSD),                                                   // 풍속 m/s
     vec: Number(v.VEC),                                                    // 풍향(바람이 불어오는 방향, 도)
     dir: COMPASS[Math.round((Number(v.VEC) % 360) / 22.5) % 16],

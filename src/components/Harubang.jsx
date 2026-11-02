@@ -1,10 +1,13 @@
+import { useT } from '../i18n'
+
 // 직접 그린 돌하르방 캐릭터 (SVG) — mood: 'normal' | 'happy' | 'worry'
 export default function Harubang({ mood = 'normal', size = 120, className = '' }) {
+  const t = useT()
   const eye = (cx) => mood === 'happy'
     ? <path d={`M${cx - 6} 64 Q${cx} 57 ${cx + 6} 64`} stroke="#25272b" strokeWidth="3" fill="none" strokeLinecap="round" />
     : <><circle cx={cx} cy="62" r="7" fill="#fff" /><circle cx={cx} cy="63" r="3.5" fill="#25272b" /></>
   return (
-    <svg viewBox="0 0 120 150" width={size} height={(size * 150) / 120} className={`wobble ${className}`} role="img" aria-label="돌하르방">
+    <svg viewBox="0 0 120 150" width={size} height={(size * 150) / 120} className={`wobble ${className}`} role="img" aria-label={t('harubangAlt')}>
       {/* 몸 */}
       <path d="M30 94 Q60 86 90 94 L97 142 H23 Z" fill="#6b7280" />
       <path d="M38 100 Q60 95 82 100" stroke="#59606b" strokeWidth="2" fill="none" />

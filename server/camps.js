@@ -1,6 +1,7 @@
 // 캠핑장 목록 + 근처 오름·신화 스토리 + 주변 장소
 // - DATA_GO_KR_KEY 가 있으면 한국관광공사 고캠핑(GoCamping) API 에서 제주 야영장을 가져옵니다.
 // - 키가 없거나 응답이 비면 샘플(가상) 캠핑장으로 대체합니다.
+import { localizeAddr } from './addr.js';
 import { SAMPLE_CAMPS } from './data/camps.js';
 import { STORIES, pick } from './data/stories.js';
 
@@ -86,18 +87,30 @@ function storiesNear(c, lang, n) {
     .map(({ s, km }) => shapeStory(s, lang, Math.round(km * 10) / 10));
 }
 
+// 주소를 선택한 언어로 (검색은 한국어 원문으로 끝난 뒤에 바꿉니다). addrKo 는 지도·택시용 한국어 원문
+const localizeCamp = (c, lang) => (lang === 'ko' ? c : { ...c, addr: localizeAddr(c.addr, lang), addrKo: c.addr });
+
 export async function listCamps({ lang = 'ko', keyword = '', type = '', region = '' } = {}) {
   const kw = keyword.trim().toLowerCase();
   return (await allCamps(lang))
     .filter((c) => (!type || c.types.includes(type)) && (!region || c.region === region)
       && (!kw || `${c.name} ${c.intro ?? ''} ${c.addr ?? ''}`.toLowerCase().includes(kw)))
-    .map((c) => ({ ...c, stories: storiesNear(c, lang, 2).map(({ id, name, km }) => ({ id, name, km })) }));
+    .map((c) => ({ ...localizeCamp(c, lang), stories: storiesNear(c, lang, 2).map(({ id, name, km }) => ({ id, name, km })) }));
 }
 
 export async function getCamp({ id, lang = 'ko' } = {}) {
   const camp = (await allCamps(lang)).find((c) => c.id === String(id));
   if (!camp) throw new Error(`캠핑장을 찾을 수 없어요: ${id}`);
-  return { camp, stories: storiesNear(camp, lang, 3), nearby: await nearbyPlaces(camp, lang) };
+  return { camp: localizeCamp(camp, lang), stories: storiesNear(camp, lang, 3), nearby: await nearbyPlaces(camp, lang) };
+}
+
+// 외국어판 TourAPI 제목에는 한국어 원제가 괄호나 이어붙여 들어 있어서(예: Sanbangsan Canola Field (산방산유채꽃밭)) 한국어 부분부터 잘라냅니다
+function foreignText(text = '', lang) {
+  if (lang === 'ko') return text;
+  const i = text.search(/[\uAC00-\uD7A3]/);
+  if (i < 0) return text;
+  const cut = text.slice(0, i).replace(/[\s(（\[【]+$/, '').trim();
+  return cut || text;
 }
 
 // TourAPI 위치기반 조회 — 캠핑장 반경 3km (키 없거나 실패하면 [])
@@ -110,6 +123,6 @@ async function nearbyPlaces(c, lang) {
     });
     const r = await fetch(`${TOUR}/${TOUR_SERVICE[lang] ?? TOUR_SERVICE.ko}/locationBasedList2?${params}`);
     const item = JSON.parse(await r.text())?.response?.body?.items?.item ?? [];
-    return (Array.isArray(item) ? item : [item]).map((p) => ({ id: p.contentid, title: p.title, addr: p.addr1, image: p.firstimage }));
+    return (Array.isArray(item) ? item : [item]).map((p) => ({ id: p.contentid, title: foreignText(p.title, lang), addr: foreignText(p.addr1, lang), image: p.firstimage }));
   } catch { return []; }
 }

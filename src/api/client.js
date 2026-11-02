@@ -37,7 +37,7 @@ export const fetchStories = (lang = 'ko', tag = '') => get(`/api/stories?lang=${
 // 캠핑 컨디션 (기상청 + 에어코리아 + 천문연구원) · 국가유산 (국가유산청)
 export const fetchCondition = (place = '제주시') => get(`/api/condition?place=${encodeURIComponent(place)}`)
 export const fetchForecast = (place = '제주시') => get(`/api/forecast?place=${encodeURIComponent(place)}`)
-export const fetchHeritage = (keyword = '') => get(`/api/heritage?keyword=${encodeURIComponent(keyword)}`)
+export const fetchHeritage = (keyword = '', lang = 'ko') => get(`/api/heritage?keyword=${encodeURIComponent(keyword)}&lang=${lang}`)
 
 // 에이전트
 export const askAgent = (message, history, lang) => post('/api/agent', { message, history, lang })

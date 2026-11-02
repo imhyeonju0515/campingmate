@@ -4,7 +4,7 @@ import StampMark from './StampMark'
 import StoryModal from './StoryModal'
 import { fetchHeritage } from '../api/client'
 import { distKm, getPosition, STAMP_RADIUS_KM } from '../lib/geo'
-import { useT } from '../i18n'
+import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
 const TAG_BG = { myth: 'primary', oreum: 'success', volcano: 'danger' }
@@ -12,6 +12,8 @@ const TAG_BG = { myth: 'primary', oreum: 'success', volcano: 'danger' }
 // 오름·신화 이야기 카드 + 도장 찍기 (스토리 목록·캠핑장 상세에서 재사용)
 export default function StoryCard({ story, campId }) {
   const t = useT()
+  const area = useArea()
+  const lang = useAppStore((s) => s.lang)
   const stamp = useAppStore((s) => s.stamps.find((x) => x.spotId === story.id))
   const stampSpot = useAppStore((s) => s.stampSpot)
   const toast = useAppStore((s) => s.toast)
@@ -22,8 +24,8 @@ export default function StoryCard({ story, campId }) {
 
   // 키워드가 있는 스팟은 국가유산청에서 관련 유산을 찾아 붙입니다 (실패해도 무시)
   useEffect(() => {
-    if (story.keyword) fetchHeritage(story.keyword).then((l) => setHeritage(l.slice(0, 3))).catch(() => {})
-  }, [story.keyword])
+    if (story.keyword) fetchHeritage(story.keyword, lang).then((l) => setHeritage(l.slice(0, 3))).catch(() => {})
+  }, [story.keyword, lang])
 
   // 도장은 이 스팟 1km 안에서만 찍힙니다 (브라우저 위치 기준 — 서버가 검증하는 것은 아니라서 진짜 부정 방지는 아님)
   async function onStamp() {
@@ -54,7 +56,7 @@ export default function StoryCard({ story, campId }) {
           <Col xs={12} sm>
             <div className="d-flex flex-wrap gap-1 mb-1">
               <Badge bg={TAG_BG[story.tag]}>{t(`tag_${story.tag}`)}</Badge>
-              <Badge bg="light" text="dark">{story.area}</Badge>
+              <Badge bg="light" text="dark">{area(story.area)}</Badge>
               {story.km != null && <Badge bg="light" text="dark"><i className="bi bi-geo-alt me-1" />{story.km} km</Badge>}
             </div>
             <Card.Title className="fw-bold">{story.name}</Card.Title>

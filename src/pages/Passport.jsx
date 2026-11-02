@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Card, Col, Form, Row } from 'react-bootstrap'
+import { fetchStories } from '../api/client'
 import PageHeader from '../components/PageHeader'
 import StampMark from '../components/StampMark'
 import { Empty } from '../components/Status'
@@ -9,6 +11,11 @@ import { useAppStore } from '../store/useAppStore'
 export default function Passport() {
   const t = useT()
   const { nickname, setNickname, stamps, resetStamps } = useAppStore()
+  const lang = useAppStore((s) => s.lang)
+  const [names, setNames] = useState({})
+  useEffect(() => {
+    fetchStories(lang).then((l) => setNames(Object.fromEntries(l.map((s) => [s.id, s.name])))).catch(() => {})
+  }, [lang])
 
   const badges = [
     { key: 'b_first', on: stamps.length >= 1 },
@@ -47,7 +54,7 @@ export default function Passport() {
         <Card><Card.Body>
           <Row xs={3} sm={4} md={5} className="g-4 justify-content-center">
             {stamps.map((s) => (
-              <Col key={s.spotId} className="d-flex justify-content-center"><StampMark label={s.name} date={s.at.slice(5, 10)} /></Col>
+              <Col key={s.spotId} className="d-flex justify-content-center"><StampMark label={names[s.spotId] ?? s.name} date={s.at.slice(5, 10)} /></Col>
             ))}
           </Row>
         </Card.Body></Card>

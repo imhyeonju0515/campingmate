@@ -1,5 +1,5 @@
 import { Badge, Card, Col, Row } from 'react-bootstrap'
-import { useT } from '../i18n'
+import { useArea, useT } from '../i18n'
 
 const CAMP_BG = { good: 'success', ok: 'warning', bad: 'danger', unknown: 'secondary' }
 const WIND_BG = { calm: 'success', breezy: 'info', strong: 'warning', danger: 'danger', unknown: 'secondary' }
@@ -7,13 +7,14 @@ const WIND_BG = { calm: 'success', breezy: 'info', strong: 'warning', danger: 'd
 // 오늘의 캠핑 컨디션 (기상청 풍속·강수 + 에어코리아 + 천문연구원 일몰) — 데이터는 부모가 넘겨 줍니다
 export default function ConditionCard({ place, cond, failed }) {
   const t = useT()
+  const area = useArea()
   const camp = failed ? 'unknown' : cond?.camp ?? 'unknown'
   const w = cond?.weather
   return (
     <Card className="h-100">
       <Card.Body>
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <span className="fw-bold small">{t('today')} · {place}</span>
+          <span className="fw-bold small">{t('today')} · {area(place)}</span>
           <Badge bg={CAMP_BG[camp]}>{t(`camp_${camp}`)}</Badge>
         </div>
         {failed && !cond && <div className="small text-danger">{t('apiFail')}</div>}
@@ -29,12 +30,12 @@ export default function ConditionCard({ place, cond, failed }) {
               <div className="small text-muted ms-auto" style={{ maxWidth: 220 }}>{t(`tip_${cond.windGrade}`)}</div>
             </div>
             <Row className="g-2 text-center">
-              <Stat icon="thermometer-half" label={t('temp')} value={w ? `${w.temp}℃` : '-'} sub={w?.sky} />
-              <Stat icon="cloud-rain" label={t('rainProb')} value={w ? `${w.pop}%` : '-'} sub={w?.rain} />
+              <Stat icon="thermometer-half" label={t('temp')} value={w ? `${w.temp}℃` : '-'} sub={w ? t(`sky_${w.skyCode}`) : ''} />
+              <Stat icon="cloud-rain" label={t('rainProb')} value={w ? `${w.pop}%` : '-'} sub={w ? t(`pty_${w.ptyCode}`) : ''} />
               <Stat icon="sunset" label={t('sunset')} value={cond.sun?.sunset ?? '-'} sub={`${t('moon')} ${cond.moon.illumination}%`} />
               <Stat icon="wind" label={t('dust')} value={cond.air?.pm10 ?? '-'} sub={cond.air?.pm25 != null ? `PM2.5 ${cond.air.pm25}` : ''} />
             </Row>
-            {cond.errors?.length > 0 && <div className="small text-muted mt-2">{cond.errors[0]}</div>}
+            {cond.errors?.length > 0 && <div className="small text-muted mt-2">{t('condPartial')}</div>}
           </>
         )}
       </Card.Body>

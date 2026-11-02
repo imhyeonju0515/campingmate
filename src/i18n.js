@@ -39,6 +39,10 @@ const T = {
     nearMe: '내 가까운 순', nearOff: '기본 순서', locating: '위치 확인 중...', geoFail: '위치를 가져오지 못했어요', farFromJeju: '제주에서 멀리 계신 것 같아요. 거리는 직선 기준이에요', kmAway: 'km',
     placeMore: '자세히 보기', placeAddr: '주소', placeIntro: '소개', placeNoData: '공공데이터에 이 장소의 사진·주소 정보가 없어요. 이야기 카드만 보여 드려요.', placeSrc: '출처: 한국관광공사 TourAPI', openMap: '지도에서 찾기', close: '닫기',
     copyAddr: '주소 복사', copied: '주소를 복사했어요', copyFail: '복사하지 못했어요. 주소를 길게 눌러 복사해 주세요',
+    areaJeju: '제주시', areaSeogwipo: '서귀포시', sky_1: '맑음', sky_3: '구름 많음', sky_4: '흐림', pty_0: '강수 없음', pty_1: '비', pty_2: '비/눈', pty_3: '눈', pty_4: '소나기',
+    copiedKo: '한국어 주소를 복사했어요 (택시·지도 앱용)', placeTranslated: '이 설명은 한국관광공사 한국어 원문을 AI가 번역했어요', condPartial: '일부 데이터를 불러오지 못했어요',
+    footerData: '데이터: 한국관광공사(고캠핑·TourAPI) · 기상청 · 에어코리아 · 한국천문연구원 · 국가유산청',
+    harubangAlt: '돌하르방', introKoNote: '',
     passportTitle: '내 패스포트', nickname: '닉네임', noStamps: '아직 찍은 도장이 없어요. 이야기에서 첫 도장을 찍어 보세요!',
     agentTitle: 'AI 하르방', agentSub: '캠핑장·바람·일몰·국가유산 데이터를 도구로 쓰는 에이전트',
     agentHint: '이렇게 물어보세요', placeholder: '질문을 입력하세요', thinking: '하르방이 도구를 쓰는 중...',
@@ -81,6 +85,10 @@ const T = {
     nearMe: 'Nearest first', nearOff: 'Default order', locating: 'Locating...', geoFail: 'Could not get your location', farFromJeju: 'You seem far from Jeju. Distances are straight-line', kmAway: 'km',
     placeMore: 'Details', placeAddr: 'Address', placeIntro: 'About', placeNoData: 'No photo or address for this place in the public data. Showing the story card only.', placeSrc: 'Source: Korea Tourism Organization TourAPI', openMap: 'Find on map', close: 'Close',
     copyAddr: 'Copy address', copied: 'Address copied', copyFail: 'Could not copy. Please select the address and copy it',
+    areaJeju: 'Jeju City', areaSeogwipo: 'Seogwipo City', sky_1: 'Clear', sky_3: 'Partly cloudy', sky_4: 'Cloudy', pty_0: 'No rain', pty_1: 'Rain', pty_2: 'Rain/snow', pty_3: 'Snow', pty_4: 'Showers',
+    copiedKo: 'Korean address copied (handy for taxis and map apps)', placeTranslated: 'This description was translated by AI from the Korean original (Korea Tourism Organization)', condPartial: 'Some data could not be loaded',
+    footerData: 'Data: Korea Tourism Organization (GoCamping · TourAPI) · KMA · AirKorea · KASI · Korea Heritage Service',
+    harubangAlt: 'Dol hareubang stone statue', introKoNote: 'Original description (Korean, from GoCamping)',
     passportTitle: 'My Passport', nickname: 'Nickname', noStamps: 'No stamps yet. Get your first from a story!',
     agentTitle: 'AI Harubang', agentSub: 'An agent that uses campsite, wind, sunset and heritage data as tools',
     agentHint: 'Try asking', placeholder: 'Type your question', thinking: 'Harubang is using tools...',
@@ -123,6 +131,10 @@ const T = {
     nearMe: '离我最近', nearOff: '默认顺序', locating: '定位中...', geoFail: '无法获取位置', farFromJeju: '您似乎离济州很远，距离为直线距离', kmAway: '公里',
     placeMore: '查看详情', placeAddr: '地址', placeIntro: '介绍', placeNoData: '公共数据中没有这个地点的照片和地址，仅显示故事卡片。', placeSrc: '来源：韩国旅游发展局 TourAPI', openMap: '在地图上查找', close: '关闭',
     copyAddr: '复制地址', copied: '地址已复制', copyFail: '复制失败，请长按地址手动复制',
+    areaJeju: '济州市', areaSeogwipo: '西归浦市', sky_1: '晴', sky_3: '多云', sky_4: '阴', pty_0: '无降水', pty_1: '雨', pty_2: '雨夹雪', pty_3: '雪', pty_4: '阵雨',
+    copiedKo: '已复制韩文地址（打车、地图应用可用）', placeTranslated: '此介绍由AI根据韩国观光公社的韩文原文翻译', condPartial: '部分数据无法加载',
+    footerData: '数据来源：韩国观光公社（GoCamping·TourAPI）·气象厅·AirKorea·韩国天文研究院·国家遗产厅',
+    harubangAlt: '石爷爷', introKoNote: '原文介绍（韩文，来自GoCamping）',
     passportTitle: '我的护照', nickname: '昵称', noStamps: '还没有印章。去故事里盖第一个吧！',
     agentTitle: 'AI 石爷爷', agentSub: '把露营地、风、日落、遗产数据当作工具的智能体',
     agentHint: '试着这样问', placeholder: '请输入问题', thinking: '石爷爷正在使用工具...',
@@ -165,6 +177,10 @@ const T = {
     nearMe: '近い順', nearOff: '標準の順', locating: '位置を確認中...', geoFail: '位置を取得できませんでした', farFromJeju: '済州から遠くにいるようです。距離は直線距離です', kmAway: 'km',
     placeMore: '詳しく見る', placeAddr: '住所', placeIntro: '紹介', placeNoData: '公共データにこの場所の写真・住所がありません。物語カードのみ表示します。', placeSrc: '出典：韓国観光公社 TourAPI', openMap: '地図で探す', close: '閉じる',
     copyAddr: '住所をコピー', copied: '住所をコピーしました', copyFail: 'コピーできませんでした。住所を長押ししてコピーしてください',
+    areaJeju: '済州市', areaSeogwipo: '西帰浦市', sky_1: '晴れ', sky_3: '曇りがち', sky_4: '曇り', pty_0: '降水なし', pty_1: '雨', pty_2: '雨/雪', pty_3: '雪', pty_4: 'にわか雨',
+    copiedKo: '韓国語の住所をコピーしました（タクシー・地図アプリ用）', placeTranslated: 'この紹介文は韓国観光公社の韓国語原文をAIが翻訳したものです', condPartial: '一部のデータを読み込めませんでした',
+    footerData: 'データ：韓国観光公社（GoCamping・TourAPI）・気象庁・AirKorea・韓国天文研究院・国家遺産庁',
+    harubangAlt: 'トルハルバン', introKoNote: '原文の紹介（韓国語、GoCamping提供）',
     passportTitle: 'マイパスポート', nickname: 'ニックネーム', noStamps: 'まだスタンプがありません。物語で最初の一つを押そう！',
     agentTitle: 'AIハルバン', agentSub: 'キャンプ場・風・日没・遺産データをツールに使うエージェント',
     agentHint: 'こう聞いてみよう', placeholder: '質問を入力', thinking: 'ハルバンがツールを使っています...',
@@ -172,6 +188,12 @@ const T = {
     loading: '読み込み中...', empty: '結果がありません', apiFail: 'サーバー(/api)に接続できません。vercel dev で実行してください。',
     back: 'キャンプ場一覧', notFound: '道に迷いました。ページがありません。', goHome: 'ホームへ',
   },
+}
+
+// 지역(시) 이름 번역: const area = useArea();  area('제주시')
+export function useArea() {
+  const t = useT()
+  return (a) => (a === '제주시' ? t('areaJeju') : a === '서귀포시' ? t('areaSeogwipo') : a)
 }
 
 // 사용법: const t = useT();  t('home')

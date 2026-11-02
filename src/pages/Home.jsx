@@ -5,7 +5,7 @@ import ForecastStrip from '../components/ForecastStrip'
 import { fetchCamps } from '../api/client'
 import { campFit } from '../../server/wind.js'   // 서버와 같은 바람 적합도 규칙
 import { useConditions, REGIONS } from '../lib/useConditions'
-import { useT } from '../i18n'
+import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 import Harubang from '../components/Harubang'
 import ConditionCard from '../components/ConditionCard'
@@ -15,6 +15,7 @@ import { ErrorAlert } from '../components/Status'
 // 홈 = 하르방 인사 + 오늘 두 지역 캠핑 컨디션 + 오늘 바람에 맞는 캠핑장 추천
 export default function Home() {
   const t = useT()
+  const area = useArea()
   const lang = useAppStore((s) => s.lang)
   const stamps = useAppStore((s) => s.stamps)
   const { data: cond, failed } = useConditions()
@@ -65,7 +66,7 @@ export default function Home() {
 
       <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
       <ButtonGroup className="mb-3">
-        {REGIONS.map((r) => <Button key={r} variant={fcPlace === r ? 'dark' : 'outline-dark'} size="sm" onClick={() => setFcPlace(r)}>{r}</Button>)}
+        {REGIONS.map((r) => <Button key={r} variant={fcPlace === r ? 'dark' : 'outline-dark'} size="sm" onClick={() => setFcPlace(r)}>{area(r)}</Button>)}
       </ButtonGroup>
       <div className="mb-4"><ForecastStrip place={fcPlace} /></div>
 

@@ -10,7 +10,7 @@ import AddressLink from '../components/AddressLink'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
-import { useT } from '../i18n'
+import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
 const FIT_VARIANT = { good: 'success', caution: 'warning', avoid: 'danger' }
@@ -19,6 +19,7 @@ const TYPE_KEY = { normal: 't_normal', car: 't_car', glamp: 't_glamp', caravan: 
 export default function CampDetail() {
   const { id } = useParams()
   const t = useT()
+  const area = useArea()
   const lang = useAppStore((s) => s.lang)
   const [data, setData] = useState(null)
   const [cond, setCond] = useState(null)
@@ -51,7 +52,7 @@ export default function CampDetail() {
         {camp.image && <Card.Img src={camp.image} alt="" style={{ maxHeight: 260, objectFit: 'cover' }} />}
         <Card.Body className="p-4">
           <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-            <Badge bg="info">{camp.region}</Badge>
+            <Badge bg="info">{area(camp.region)}</Badge>
             {camp.types.map((x) => <Badge key={x} bg="secondary">{t(TYPE_KEY[x])}</Badge>)}
             {camp.pet && <Badge bg="light" text="dark"><i className="bi bi-heart-fill text-danger me-1" />{t('pet')}</Badge>}
             <span className="small text-muted">{camp.source === 'gocamping' ? t('live') : t('sample')}</span>
@@ -60,8 +61,8 @@ export default function CampDetail() {
             <h1 className="fw-bold h2">{camp.name}</h1>
             <FavButton campId={camp.id} />
           </div>
-          {camp.intro && <p className="text-muted mb-1">{camp.intro}</p>}
-          {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" /><AddressLink addr={camp.addr} /></div>}
+          {camp.intro && <p className="text-muted mb-1">{camp.intro}{lang !== 'ko' && camp.source === 'gocamping' && <span className="d-block small fst-italic">{t('introKoNote')}</span>}</p>}
+          {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" /><AddressLink addr={camp.addr} ko={camp.addrKo} /></div>}
         </Card.Body>
       </Card>
 
