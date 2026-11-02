@@ -41,21 +41,18 @@ export default function Home() {
   return (
     <>
       <section className="card shadow-sm mb-4">
-        <div className="card-body p-4 p-md-5">
-          <Row className="align-items-center g-4">
-            <Col xs={12} md="auto" className="text-center"><Harubang mood={mood} size={130} /></Col>
-            <Col>
-              <div className="small fw-bold text-info mb-1">JEJU CAMPMATE</div>
-              <h1 className="fw-bold">{t('heroTitle')}</h1>
-              <p className="text-muted">{t('heroSub')}</p>
-              <div className="bubble d-inline-block mb-3">{say}</div>
-              <div className="d-flex flex-wrap align-items-center gap-3">
-                <Link to="/camps" className="btn btn-primary btn-lg">{t('start')} <i className="bi bi-arrow-right" /></Link>
-                <Link to="/map" className="btn btn-outline-primary btn-lg"><i className="bi bi-globe-asia-australia me-1" />{t('map')}</Link>
-                <span>{t('progress')} <b className="text-primary">{stamps.length}</b></span>
-              </div>
-            </Col>
-          </Row>
+        <div className="card-body p-4 p-md-5 text-center">
+          {/* 가운데 정렬: 하르방 → (위쪽 꼬리가 하르방을 가리키는) 말풍선 → 제목 → 설명 → 버튼 */}
+          <Harubang mood={mood} size={130} />
+          <div className="mt-3 mb-3"><div className="bubble bubble-up d-inline-block">{say}</div></div>
+          <div className="small fw-bold text-info mb-1">JEJU CAMPMATE</div>
+          <h1 className="fw-bold">{t('heroTitle')}</h1>
+          <p className="text-muted">{t('heroSub')}</p>
+          <div className="d-flex flex-wrap justify-content-center align-items-center gap-3">
+            <Link to="/camps" className="btn btn-primary btn-lg">{t('start')} <i className="bi bi-arrow-right" /></Link>
+            <Link to="/map" className="btn btn-outline-primary btn-lg"><i className="bi bi-globe-asia-australia me-1" />{t('map')}</Link>
+            <span>{t('progress')} <b className="text-primary">{stamps.length}</b></span>
+          </div>
         </div>
       </section>
 

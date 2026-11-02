@@ -27,7 +27,7 @@ export default function ConditionCard({ place, cond, failed }) {
                 <div className="fs-4 fw-bold">{w ? `${w.wind} m/s` : '-'} {w && <small className="text-muted fs-6">{w.dir}</small>}</div>
                 <Badge bg={WIND_BG[cond.windGrade]}>{t(`windG_${cond.windGrade}`)}</Badge>
               </div>
-              <div className="small text-muted ms-auto" style={{ maxWidth: 220 }}>{t(`tip_${cond.windGrade}`)}</div>
+              <div className="small text-muted ms-auto" style={{ maxWidth: 300 }}>{t(`tip_${cond.windGrade}`)}</div>
             </div>
             <Row className="g-2 text-center">
               <Stat icon="thermometer-half" label={t('temp')} value={w ? `${w.temp}℃` : '-'} sub={w ? t(`sky_${w.skyCode}`) : ''} />

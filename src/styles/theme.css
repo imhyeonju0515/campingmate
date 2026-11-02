@@ -184,3 +184,13 @@ main { padding-bottom: 5.5rem; }
 .agent-camp:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--green); color: #000; }
 .agent-camps li + li { margin-top: .5rem; }
 .agent-camp-go { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); }
+
+/* ── 줄바꿈 ───────────────────────────────────────────────
+   한글은 글자 단위로 끊기면 "요." 처럼 한두 글자가 다음 줄에 덜렁 남습니다.
+   keep-all = 낱말(띄어쓰기) 단위로만 줄을 바꾸고, balance/pretty = 줄 길이를 고르게 맞춥니다. */
+body { word-break: keep-all; overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6, .btn, .badge, .bubble, .card-title, .small { text-wrap: balance; }
+p, .card-text, .text-muted { text-wrap: pretty; }
+
+/* 위쪽으로 꼬리가 달린 말풍선 (가운데 정렬한 하르방 아래) */
+.bubble.bubble-up::before { display: block; left: 50%; top: -9px; margin-left: -7px; border-left: 2px solid #000; border-top: 2px solid #000; border-bottom: 0; transform: rotate(45deg); }
