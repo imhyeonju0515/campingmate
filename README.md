@@ -70,17 +70,19 @@ data.go.kr 에서 활용 신청하고 **같은 Decoding 키 1개**(`DATA_GO_KR_K
 
 ### 에이전트 테스트 캡처
 
-> ⚠️ **아직 실행하지 못했습니다.** 에이전트는 `ANTHROPIC_API_KEY` 가 있어야 동작하는데 아직 발급 전이라, 실제 캡처를 넣지 못했습니다. (도구가 쓰는 공공데이터 API 자체는 키로 직접 호출해 확인했습니다.)
-> 키를 `.env.local` 과 Vercel 환경변수에 넣은 뒤 아래 질문으로 테스트하고 캡처를 `docs/agent-test/` 에 저장해 이 표에 연결하세요.
+실제 Anthropic 키로 4개 질문을 한 번씩 실행했습니다. 캡처는 `docs/agent-test/` 에 있습니다. (공공데이터 실시간 값이라 시각에 따라 숫자는 달라집니다.)
 
-| # | 테스트 질문 | 기대하는 도구 호출 | 캡처 |
-|---|---|---|---|
-| 1 | 오늘 바람 약한 곳에서 캠핑하고 싶어 | `get_camp_condition` → `list_camps` | _(추가 예정)_ |
-| 2 | 노을 보기 좋은 캠핑장 추천해줘 | `get_camp_condition`(일몰) → `list_camps` | _(추가 예정)_ |
-| 3 | 설문대할망 이야기가 있는 곳 근처 캠핑장은? | `list_oreum_stories` → `list_camps` | _(추가 예정)_ |
-| 4 | 이번 주말에 텐트 치기 괜찮아? | `get_forecast` | _(추가 예정)_ |
-| 5 | (영어) Which campsite is good for a glamping tonight? | `list_camps` + 영어 답변 | _(추가 예정)_ |
-| 6 | 이 캠핑장 예약 어떻게 해? | `get_camp_detail` (없는 번호는 지어내지 않는지) | _(추가 예정)_ |
+| # | 질문 | 호출한 도구 | 결과 | 캡처 |
+|---|---|---|---|---|
+| 1 | 오늘 바람 약한 곳에서 캠핑하고 싶어 | `get_camp_condition`(제주시·서귀포시) → `list_camps` → `get_camp_detail` | 두 지역 풍속을 비교해 더 잔잔한 서귀포의 캠핑장을 고르고, 전화·예약 링크는 도구 결과 그대로 안내. 미세먼지는 조회 실패라 "모른다"고 말함 | ![1](docs/agent-test/01-low-wind-camp.jpg) |
+| 2 | 이번 주말에 텐트 치기 괜찮아? | `get_forecast`(두 지역) | **주말 예보는 없다**고 솔직히 답하고, 있는 3일치 안에서 내일은 좋고 모레는 비 60%라 비추천이라고 안내 | ![2](docs/agent-test/02-weekend-forecast.jpg) |
+| 3 | 코코캠프 제주 예약 어떻게 해? 전화번호도 알려줘 | `list_camps` → `get_camp_detail` | 등록된 연락처가 없는 캠핑장이라 **번호를 지어내지 않고** "등록된 정보가 없다"고 답함 | ![3](docs/agent-test/03-no-contact-info.jpg) |
+| 4 | (영어) Which campsite is good for glamping tonight? | `list_camps`(glamp) → `get_camp_condition` → `get_camp_detail` | 영어로 답하고 글램핑 캠핑장·풍속·일몰·예약 방법을 안내 | ![4](docs/agent-test/04-english-glamping.jpg) |
+
+**테스트에서 확인한 것과 한계**
+- 도구를 고르는 것, "지어내지 마라" 규칙(없는 번호·없는 주말 예보), 4개 언어 중 한국어·영어 답변은 확인했습니다. 중국어·일본어 답변은 아직 시험하지 않았습니다.
+- 답 길이: "5문장 이내"로 지시해도 모델이 6~9문장으로 답하는 경우가 있었습니다(질문 3은 4문장). 프롬프트를 두 번 더 조여 줄였지만 완전히 막지는 못합니다. 루프 상한(5회)·`max_tokens`·대화 기록 10개 제한은 코드로 강제됩니다.
+- 질문 1의 캡처는 채팅창 높이 때문에 답이 중간에서 잘려 보입니다(전체 답은 채팅창을 스크롤하면 보입니다).
 
 ---
 
