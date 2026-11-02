@@ -88,14 +88,15 @@ export const useAppStore = create(
       resetStamps: () => set({ stamps: [] }),
 
       // ④ 에이전트 대화 — 페이지를 옮겨도 대화가 남도록 store 에 둡니다
-      messages: [],          // { role: 'user' | 'assistant', text, steps }
+      messages: [],          // { role: 'user' | 'assistant', text, camps, steps }
       chatLoading: false,
       sendMessage: async (text) => {
-        const history = get().messages.map((m) => ({ role: m.role, content: m.text }))  // Claude 형식
+        // Claude 형식. 추천 캠핑장 이름도 붙여야 "그중 첫 번째는?" 같은 후속 질문을 이해합니다
+        const history = get().messages.map((m) => ({ role: m.role, content: m.camps?.length ? `${m.text}\n(추천: ${m.camps.map((c) => c.name).join(', ')})` : m.text }))
         set({ messages: [...get().messages, { role: 'user', text }], chatLoading: true })
         try {
-          const { answer, steps } = await askAgent(text, history, get().lang)
-          set({ messages: [...get().messages, { role: 'assistant', text: answer, steps }] })
+          const { answer, camps, steps } = await askAgent(text, history, get().lang)
+          set({ messages: [...get().messages, { role: 'assistant', text: answer, camps: camps ?? [], steps }] })
         } catch (e) {
           get().toast(e.message, 'danger')
         } finally {

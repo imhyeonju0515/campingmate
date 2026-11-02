@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Card, Form, InputGroup, Spinner } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import { Badge, Button, Card, Form, InputGroup } from 'react-bootstrap'
 import PageHeader from '../components/PageHeader'
 import Harubang from '../components/Harubang'
-import { useT } from '../i18n'
+import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
+
+const TYPE_KEY = { normal: 't_normal', car: 't_car', glamp: 't_glamp', caravan: 't_caravan' }
 
 export default function Agent() {
   const t = useT()
+  const area = useArea()
   const messages = useAppStore((s) => s.messages)
   const loading = useAppStore((s) => s.chatLoading)
   const sendMessage = useAppStore((s) => s.sendMessage)
@@ -37,18 +41,40 @@ export default function Agent() {
               </div>
             </div>
           )}
-          {messages.map((m, i) => (
-            <div key={i} className={`msg ${m.role}`}>
-              {m.steps?.length > 0 && (
-                <div className="small text-info mb-1">
-                  <i className="bi bi-tools me-1" />
-                  {m.steps.map((s) => `${s.tool}(${JSON.stringify(s.args)}) → ${s.count}`).join(' · ')}
-                </div>
-              )}
-              {m.text}
+          {messages.map((m, i) => (m.role === 'user' ? (
+            <div key={i} className="msg user">{m.text}</div>
+          ) : (
+            // 하르방이 말풍선으로 답하고, 추천 캠핑장은 눌러서 상세로 갈 수 있는 목록으로 보여 줍니다
+            <div key={i} className="d-flex align-items-start gap-2 agent-row">
+              <div className="flex-shrink-0"><Harubang mood="happy" size={52} /></div>
+              <div className="bubble agent-bubble">
+                {m.text && <div>{m.text}</div>}
+                {m.camps?.length > 0 && (
+                  <ul className="agent-camps list-unstyled mb-0 mt-2">
+                    {m.camps.map((c) => (
+                      <li key={c.id}>
+                        <Link to={`/camps/${encodeURIComponent(c.id)}`} className="agent-camp">
+                          <span className="d-flex flex-wrap align-items-center gap-1">
+                            <b>{c.name}</b>
+                            <Badge bg="info">{area(c.region)}</Badge>
+                            {c.types?.map((x) => <Badge key={x} bg="light" text="dark">{t(TYPE_KEY[x])}</Badge>)}
+                          </span>
+                          {c.note && <span className="small d-block mt-1">{c.note}</span>}
+                          <i className="bi bi-chevron-right agent-camp-go" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-          ))}
-          {loading && <div className="small text-muted"><Spinner size="sm" className="me-2" />{t('thinking')}</div>}
+          )))}
+          {loading && (
+            <div className="d-flex align-items-start gap-2 agent-row">
+              <div className="flex-shrink-0"><Harubang mood="normal" size={52} /></div>
+              <div className="bubble"><span className="spinner-border spinner-border-sm me-2" />{t('thinking')}</div>
+            </div>
+          )}
           <div ref={bottom} />
         </Card.Body>
       </Card>

@@ -175,3 +175,12 @@ main { padding-bottom: 5.5rem; }
 .stamp-empty:hover { border-color: #000; color: #000; }
 .pp-avatar { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid #000; background: var(--sun); display: grid; place-items: center; font-family: var(--font-round); font-size: 1.1rem; }
 .pc-stamp .stamp-mark span { font-size: 11px !important; }
+
+/* AI 하르방 채팅: 말풍선 + 추천 캠핑장 목록 */
+.agent-row { max-width: 100%; }
+.agent-bubble { font-weight: 600; flex: 1 1 auto; min-width: 0; }
+.agent-camp { position: relative; display: block; padding: .5rem 2rem .5rem .75rem; background: var(--card); color: #000; text-decoration: none;
+  border: 2px solid #000; border-radius: .75rem; box-shadow: 2px 2px 0 #000; transition: transform .12s, box-shadow .12s; }
+.agent-camp:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--green); color: #000; }
+.agent-camps li + li { margin-top: .5rem; }
+.agent-camp-go { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); }

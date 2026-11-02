@@ -63,6 +63,29 @@ const tools = [
     description: '국가유산청 API로 제주의 국가유산(문화재)을 이름으로 검색한다. 이야기 소재용',
     input_schema: { type: 'object', properties: { keyword: { type: 'string' } } },
   },
+  {
+    // 화면에 보여 줄 최종 답. 글이 아니라 "짧은 안내 + 캠핑장 목록"으로 받아서 화면이 목록·링크로 그립니다.
+    name: 'answer',
+    description: '사용자에게 보여 줄 최종 답을 제출한다. 필요한 조회를 마친 뒤 반드시 마지막에 이 도구로 답한다. message 는 1~2문장의 짧은 안내, camps 는 추천하는 캠핑장 목록이다(다른 도구 결과에 있는 campId 만, 최대 5개). 캠핑장을 추천하는 질문이 아니면 camps 는 비운다.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', description: '1~2문장 안내(하르방 말투). 추천 캠핑장 이름을 문장에 나열하지 않는다 — 목록은 camps 에 넣는다' },
+        camps: {
+          type: 'array', maxItems: 5,
+          items: {
+            type: 'object',
+            properties: {
+              campId: { type: 'string', description: 'list_camps/get_camp_detail 결과의 id' },
+              note: { type: 'string', description: '이 캠핑장을 고른 이유 한 줄(30자 안팎). 도구 결과에 있는 사실만' },
+            },
+            required: ['campId', 'note'],
+          },
+        },
+      },
+      required: ['message'],
+    },
+  },
 ];
 
 const LANG_NAME = { ko: '한국어', en: 'English', zh: '简体中文', ja: '日本語' };
@@ -86,8 +109,22 @@ const system = (lang) => `너는 '하르방 campmate'의 캐릭터 '하르방이
 - 비 예보나 미세먼지가 나쁘면 함께 알려 준다.
 - 예약·연락처를 물으면 도구 결과의 tel(전화), resveUrl(온라인 예약), homepage, reserve(예약 방식)만 그대로 알려 준다. 값이 비어 있으면 "등록된 정보가 없다"고 말하고 번호나 주소를 지어내지 않는다. 요금·예약 가능 여부는 직접 확인하라고 덧붙인다.
 - 캠핑장을 추천할 때는 가까운 오름·신화 스토리 한 가지를 곁들여 짧게 들려준다.
-- 친근하고 약간 익살스러운 하르방 말투로 답한다. 답은 3~4문장, 한 문단으로 아주 짧게 쓴다(어떤 경우에도 5문장을 넘기지 않는다). 핵심만 말하고 덜 중요한 내용은 뺀다. 도구 결과에 없는 이유나 추측(예: "숲이 바람막이가 된다")은 덧붙이지 않는다. 화면이 마크다운을 렌더링하지 않으므로 **굵게**, #, 목록 기호를 쓰지 않고 평범한 문장으로만 쓴다.
+- 최종 답은 반드시 answer 도구로 제출한다(글로 바로 답하지 않는다). message 는 친근하고 약간 익살스러운 하르방 말투의 **딱 1문장**(길어도 2문장) 안내이고, 캠핑장 추천은 camps 목록에 넣는다. 예: "오늘 바람이 약한 곳은 서귀포시 쪽이구나." + camps 3~5개. 질문에서 묻지 않은 이야기·미세먼지·예약 안내는 message 에 덧붙이지 않는다(이야기는 note 에 "산방산 3.9km"처럼 짧게).
+- camps 에는 도구 결과에 있는 campId 만 넣고, 각 note 는 그 캠핑장의 특징·근처 이야기 같은 도구 결과의 사실을 30자 안팎으로 쓴다. 지역과 유형(일반야영·글램핑 등)은 화면에 따로 표시되므로 note 에 쓰지 않는다. 추측(예: "숲이 바람막이가 된다")은 쓰지 않는다.
+- 예약·연락처 질문처럼 캠핑장 목록이 필요 없는 질문은 camps 를 비우고 message 에 2문장 이내로 답한다.
+- 화면이 마크다운을 렌더링하지 않으므로 **굵게**, #, 목록 기호를 쓰지 않는다.
 - 반드시 ${LANG_NAME[lang] ?? LANG_NAME.ko}로 답한다.`;
+
+// answer 도구 입력 → 화면용 응답. 추천 캠핑장은 실제 데이터에 있는 id 만 남깁니다(모델이 없는 id 를 지어내도 걸러짐).
+async function shapeAnswer(input = {}, lang, steps) {
+  const all = await listCamps({ lang });
+  const byId = new Map(all.map((c) => [c.id, c]));
+  const camps = (Array.isArray(input.camps) ? input.camps : []).slice(0, 5).flatMap((x) => {
+    const c = byId.get(String(x?.campId));
+    return c ? [{ id: c.id, name: c.name, region: c.region, types: c.types, note: String(x.note ?? '').slice(0, 80) }] : [];
+  });
+  return { answer: String(input.message ?? ''), camps, steps };
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -101,11 +138,17 @@ export default async function handler(req, res) {
     for (let turn = 0; turn < MAX_TURNS; turn++) {
       const r = await client.messages.create({
         model: MODEL, max_tokens: MAX_TOKENS, system: system(lang), tools, messages,
+        // 마지막 차례에는 조회를 더 못 하게 하고 answer 로 답하게 강제 (상한에 걸려 답 없이 끝나는 것을 막음)
+        tool_choice: turn === MAX_TURNS - 1 ? { type: 'tool', name: 'answer' } : { type: 'auto' },
       });
 
-      if (r.stop_reason !== 'tool_use') {
+      // 최종 답(answer 도구) — 다른 도구 호출이 같이 와도 답을 우선합니다
+      const done = r.content.find((b) => b.type === 'tool_use' && b.name === 'answer');
+      if (done) return res.status(200).json(await shapeAnswer(done.input, lang, steps));
+
+      if (r.stop_reason !== 'tool_use') {   // answer 도구 없이 글로 답한 경우 — 글 그대로 보여 줌
         const answer = r.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n');
-        return res.status(200).json({ answer, steps });
+        return res.status(200).json({ answer, camps: [], steps });
       }
 
       messages.push({ role: 'assistant', content: r.content });
@@ -120,7 +163,7 @@ export default async function handler(req, res) {
       }
       messages.push({ role: 'user', content: results });
     }
-    res.status(200).json({ answer: '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', steps });
+    res.status(200).json({ answer: '도구 호출이 너무 많아 중단했어요. 질문을 좁혀 주세요.', camps: [], steps });
   } catch (e) {
     res.status(e.status ?? 500).json({ error: e.status === 429 ? '사용량이 많아요. 1분 뒤 다시 시도하세요.' : e.message });
   }
