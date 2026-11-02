@@ -5,6 +5,7 @@ import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 import { Loading } from './Status'
 import AddressLink from './AddressLink'
+import NearCamps from './NearCamps'
 
 // 이야기 카드를 눌렀을 때: 사진 · 이야기 · 소개 · 주소 (사진·소개·주소는 TourAPI, 없으면 이야기만)
 export default function StoryModal({ story, show, onHide }) {
@@ -47,7 +48,8 @@ export default function StoryModal({ story, show, onHide }) {
             <p style={{ whiteSpace: 'pre-line' }}>{place.overview}</p>
           </>
         )}
-        {addr && <p className="mb-2"><i className="bi bi-geo-alt-fill text-primary me-1" /><b>{t('placeAddr')}</b> <AddressLink addr={addr} ko={place.addrKo} /></p>}
+        <NearCamps camps={story.camps} onNavigate={onHide} />
+        {addr && <p className="mb-2 mt-3"><i className="bi bi-geo-alt-fill text-primary me-1" /><b>{t('placeAddr')}</b> <AddressLink addr={addr} ko={place.addrKo} /></p>}
         {place && !place.found && !loading && <div className="small text-muted">{t('placeNoData')}</div>}
         {place?.found && <div className="small text-muted">{t('placeSrc')}{place.translated ? ` · ${t('placeTranslated')}` : ''}</div>}
       </Modal.Body>

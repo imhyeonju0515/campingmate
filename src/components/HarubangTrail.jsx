@@ -4,6 +4,7 @@ import { Badge, Button } from 'react-bootstrap'
 import Harubang from './Harubang'
 import StampMark from './StampMark'
 import StoryModal from './StoryModal'
+import NearCamps from './NearCamps'
 import { COAST_LATLNG, MAP } from '../lib/jejuCoast'
 import { useStamp } from '../lib/useStamp'
 import { useArea, useT } from '../i18n'
@@ -50,7 +51,7 @@ function StopActions({ story, onDetail }) {
 
 // 하르방 길: 제주 윤곽 위에서 돌하르방이 길목(스팟)을 하나씩 걸어가며 이야기를 들려줍니다.
 // 길 순서는 server/data/stories.js 의 order. 윤곽·좌표는 대략값이라 정확한 지도가 아니라 "이야기 길" 그림입니다.
-export default function HarubangTrail({ stories }) {
+export default function HarubangTrail({ stories, startId }) {
   const t = useT()
   const area = useArea()
   const stamps = useAppStore((s) => s.stamps)
@@ -64,7 +65,9 @@ export default function HarubangTrail({ stories }) {
   const [started, setStarted] = useState(false)
   useEffect(() => {
     if (started || stops.length === 0) return
-    const first = stops.findIndex((s) => !stamped.has(s.id))
+    // 주소에 ?spot=… 이 있으면 그 길목에서, 없으면 도장 못 받은 첫 길목에서 시작
+    const fixed = startId ? stops.findIndex((s) => s.id === startId) : -1
+    const first = fixed >= 0 ? fixed : stops.findIndex((s) => !stamped.has(s.id))
     setI(first < 0 ? 0 : first)
     setStarted(true)
   }, [stops, stamped, started])
@@ -131,6 +134,7 @@ export default function HarubangTrail({ stories }) {
         <div className="trail-title">{cur.name}</div>
         <div className="trail-text"><TypeText text={cur.story} /></div>
         <StopActions story={cur} onDetail={() => setOpen(true)} />
+        <NearCamps camps={cur.camps} compact />
       </div>
       <StoryModal story={cur} show={open} onHide={() => setOpen(false)} />
 

@@ -3,6 +3,7 @@
 // - 키가 없거나 응답이 비면 샘플(가상) 캠핑장으로 대체합니다.
 import { localizeAddr } from './addr.js';
 import { campName, campNameEn } from './data/campNames.js';
+import { oreumsNear } from './oreums.js';
 import { SAMPLE_CAMPS } from './data/camps.js';
 import { STORIES, pick } from './data/stories.js';
 
@@ -76,8 +77,18 @@ const shapeStory = (s, lang, km) => ({
   name: pick(s.name, lang), story: pick(s.story, lang), ...(km != null && { km }),
 });
 
-export function listStories({ lang = 'ko', tag = '', area = '' } = {}) {
-  return STORIES.filter((s) => (!tag || s.tag === tag) && (!area || s.area === area)).map((s) => shapeStory(s, lang));
+// 스팟(오름·화산·신화)에서 가까운 캠핑장 n곳 — 거리는 직선거리(km)입니다. 이동 시간은 데이터가 없어 계산하지 않습니다
+function campsNearSpot(s, camps, lang, n = 3) {
+  return camps
+    .map((c) => ({ c, km: distKm(s.lat, s.lng, c.lat, c.lng) }))
+    .sort((a, b) => a.km - b.km).slice(0, n)
+    .map(({ c, km }) => { const l = localizeCamp(c, lang); return { id: l.id, name: l.name, region: l.region, types: l.types, km: Math.round(km * 10) / 10 }; });
+}
+
+export async function listStories({ lang = 'ko', tag = '', area = '' } = {}) {
+  const camps = await allCamps(lang);
+  return STORIES.filter((s) => (!tag || s.tag === tag) && (!area || s.area === area))
+    .map((s) => ({ ...shapeStory(s, lang), camps: campsNearSpot(s, camps, lang) }));
 }
 
 // 캠핑장에서 가까운 순으로 오름·신화 스토리 n개
@@ -103,7 +114,9 @@ export async function listCamps({ lang = 'ko', keyword = '', type = '', region =
 export async function getCamp({ id, lang = 'ko' } = {}) {
   const camp = (await allCamps(lang)).find((c) => c.id === String(id));
   if (!camp) throw new Error(`캠핑장을 찾을 수 없어요: ${id}`);
-  return { camp: localizeCamp(camp, lang), stories: storiesNear(camp, lang, 3), nearby: await nearbyPlaces(camp, lang) };
+  // oreums: TourAPI 로 모은 오름 목록에서 가까운 5곳 (실패해도 빈 목록)
+  const oreums = await oreumsNear(camp.lat, camp.lng, lang, 5).catch(() => []);
+  return { camp: localizeCamp(camp, lang), stories: storiesNear(camp, lang, 3), oreums, nearby: await nearbyPlaces(camp, lang) };
 }
 
 // 외국어판 TourAPI 제목에는 한국어 원제가 괄호나 이어붙여 들어 있어서(예: Sanbangsan Canola Field (산방산유채꽃밭)) 한국어 부분부터 잘라냅니다

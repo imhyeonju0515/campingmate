@@ -41,7 +41,7 @@ export default function CampDetail() {
   if (loading) return <Loading />
   if (error) return <ErrorAlert error={error} />
   if (!data) return <Empty />
-  const { camp, stories, nearby } = data
+  const { camp, stories, nearby, oreums = [] } = data
   const fit = cond ? campFit(camp.types, cond.windGrade) : null
 
   return (
@@ -77,6 +77,27 @@ export default function CampDetail() {
 
       <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
       <div className="mb-4"><ForecastStrip place={camp.region} types={camp.types} /></div>
+
+      {oreums.length > 0 && (
+        <>
+          <h5 className="fw-bold mb-1"><i className="bi bi-triangle-fill text-primary me-2" />{t('nearOreums')}</h5>
+          <div className="small text-muted mb-3">{t('oreumSrc')} · {t('straightNote')}</div>
+          <Row xs={1} sm={2} lg={3} className="g-3 mb-4">
+            {oreums.map((o) => (
+              <Col key={o.id}>
+                <Card><Card.Body className="d-flex gap-3 p-2">
+                  {o.image && <img src={o.image} alt="" loading="lazy" className="rounded flex-shrink-0" style={{ width: 72, height: 72, objectFit: 'cover', border: '2px solid #000' }} />}
+                  <div className="min-w-0">
+                    <div className="fw-bold">{o.name}</div>
+                    <div className="small"><i className="bi bi-geo-alt-fill text-primary" /> {o.km} km</div>
+                    <div className="small"><AddressLink addr={o.addr} ko={o.addrKo} /></div>
+                  </div>
+                </Card.Body></Card>
+              </Col>
+            ))}
+          </Row>
+        </>
+      )}
 
       <h5 className="fw-bold mb-3"><i className="bi bi-signpost-2-fill text-primary me-2" />{t('nearStories')}</h5>
       <Row xs={1} className="g-3 mb-4">

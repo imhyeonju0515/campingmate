@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap'
 import PageHeader from '../components/PageHeader'
 import StoryCard from '../components/StoryCard'
@@ -14,6 +15,7 @@ const TAGS = ['', 'myth', 'oreum', 'volcano']
 export default function Stories() {
   const t = useT()
   const lang = useAppStore((s) => s.lang)
+  const [params] = useSearchParams()   // /stories?spot=s-sanbang → 하르방 길을 그 길목에서 시작
   const [view, setView] = useState('trail')   // 'trail' | 'list'
   const [tag, setTag] = useState('')
   const [all, setAll] = useState([])
@@ -39,7 +41,7 @@ export default function Stories() {
       </ButtonGroup>
 
       <ErrorAlert error={error} />
-      {loading ? <Loading /> : view === 'trail' ? <HarubangTrail stories={all} /> : (
+      {loading ? <Loading /> : view === 'trail' ? <HarubangTrail stories={all} startId={params.get('spot')} /> : (
         <>
           <ButtonGroup className="mb-4 flex-wrap d-flex">
             {TAGS.map((x) => (

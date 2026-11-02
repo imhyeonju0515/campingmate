@@ -2,7 +2,9 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getCamp, listCamps, listStories } from '../server/camps.js';
 import { getCondition } from '../server/condition.js';
 import { getForecast } from '../server/weather.js';
+import { getCourse } from '../server/course.js';
 import { searchHeritage } from '../server/heritage.js';
+import { STORIES } from '../server/data/stories.js';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = 'claude-sonnet-5-5';
@@ -34,7 +36,7 @@ const tools = [
   },
   {
     name: 'list_oreum_stories',
-    description: '제주 오름·신화·화산 스토리 스팟 목록을 조회한다 (tag: myth 신화, oreum 오름, volcano 화산)',
+    description: '제주 오름·신화·화산 스토리 스팟 목록과 각 스팟에서 가까운 캠핑장(직선거리 km)을 조회한다 (tag: myth 신화, oreum 오름, volcano 화산)',
     input_schema: {
       type: 'object',
       properties: { tag: { type: 'string', enum: ['myth', 'oreum', 'volcano'] }, area: { type: 'string', enum: ['제주시', '서귀포시'] } },
@@ -64,6 +66,11 @@ const tools = [
     input_schema: { type: 'object', properties: { keyword: { type: 'string' } } },
   },
   {
+    name: 'get_course',
+    description: '캠핑장 하나를 골랐을 때 1박 2일 코스 재료를 한 번에 가져온다: 그 캠핑장의 가까운 스팟(오름·화산·신화, 직선거리 km·이야기), 오늘과 내일의 일출·일몰 시각, 오늘과 내일의 풍속·강수 예보. "1박 2일", "코스", "일정" 질문에 쓴다. 이동·등반 소요 시간 데이터는 없다.',
+    input_schema: { type: 'object', properties: { campId: { type: 'string', description: 'list_camps 결과의 캠핑장 id' } }, required: ['campId'] },
+  },
+  {
     // 화면에 보여 줄 최종 답. 글이 아니라 "짧은 안내 + 캠핑장 목록"으로 받아서 화면이 목록·링크로 그립니다.
     name: 'answer',
     description: '사용자에게 보여 줄 최종 답을 제출한다. 필요한 조회를 마친 뒤 반드시 마지막에 이 도구로 답한다. message 는 1~2문장의 짧은 안내, camps 는 추천하는 캠핑장 목록이다(다른 도구 결과에 있는 campId 만, 최대 5개). 캠핑장을 추천하는 질문이 아니면 camps 는 비운다.',
@@ -87,6 +94,38 @@ const tools = [
     },
   },
 ];
+// answer 도구의 선택 항목 plan(1박 2일 일정). 위 schema 에 이어 붙입니다.
+tools.find((t) => t.name === 'answer').input_schema.properties.plan = {
+  type: 'object',
+  description: '1박 2일 코스 질문일 때만. days 는 최대 2일, 각 items 는 최대 5개. campId/spotId 는 도구 결과에 있는 id 만',
+  properties: {
+    title: { type: 'string', description: '코스 이름 한 줄' },
+    days: {
+      type: 'array', maxItems: 2,
+      items: {
+        type: 'object',
+        properties: {
+          label: { type: 'string', description: '예: 1일차 / Day 1' },
+          items: {
+            type: 'array', maxItems: 5,
+            items: {
+              type: 'object',
+              properties: {
+                time: { type: 'string', description: '도구 결과에 있는 시각(일몰·일출) 또는 "오후"·"해 지기 전" 같은 상대 표현. 이동·등반 시간은 지어내지 않는다' },
+                text: { type: 'string', description: '한 줄 안내(30자 안팎). 도구 결과의 사실만' },
+                campId: { type: 'string' },
+                spotId: { type: 'string', description: 'get_course 의 spots[].id' },
+              },
+              required: ['time', 'text'],
+            },
+          },
+        },
+        required: ['label', 'items'],
+      },
+    },
+  },
+  required: ['days'],
+};
 
 const LANG_NAME = { ko: '한국어', en: 'English', zh: '简体中文', ja: '日本語' };
 
@@ -97,6 +136,7 @@ const makeRunTool = (lang) => ({
   list_oreum_stories: (a) => listStories({ ...a, lang }),
   get_camp_condition: getCondition,
   get_forecast: getForecast,
+  get_course: (a) => getCourse({ campId: a.campId, lang }),
   search_heritage: searchHeritage,
 });
 
@@ -111,6 +151,7 @@ const system = (lang) => `너는 '하르방 campmate'의 캐릭터 '하르방이
 - 캠핑장을 추천할 때는 가까운 오름·신화 스토리 한 가지를 곁들여 짧게 들려준다.
 - 최종 답은 반드시 answer 도구로 제출한다(글로 바로 답하지 않는다). message 는 친근하고 약간 익살스러운 하르방 말투의 **딱 1문장**(길어도 2문장) 안내이고, 캠핑장 추천은 camps 목록에 넣는다. 예: "오늘 바람이 약한 곳은 서귀포시 쪽이구나." + camps 3~5개. 질문에서 묻지 않은 이야기·미세먼지·예약 안내는 message 에 덧붙이지 않는다(이야기는 note 에 "산방산 3.9km"처럼 짧게).
 - camps 에는 도구 결과에 있는 campId 만 넣고, 각 note 는 그 캠핑장의 특징·근처 이야기 같은 도구 결과의 사실을 30자 안팎으로 쓴다. 지역과 유형(일반야영·글램핑 등)은 화면에 따로 표시되므로 note 에 쓰지 않는다. 추측(예: "숲이 바람막이가 된다")은 쓰지 않는다.
+- "1박 2일"·"코스"·"일정" 질문: 알맞은 캠핑장을 하나 고르고(list_camps, 필요하면 get_camp_condition) get_course 로 가까운 스팟·일출·일몰·예보를 확인한 뒤, answer 의 plan 에 1일차·2일차 일정(항목 3~5개씩)을 넣는다. 항목의 spotId 는 get_course 의 spots 에 있는 것만, 캠핑장은 campId 로 넣는다. 일정은 일몰 전 도착·일출·바람 예보처럼 도구 결과로 뒷받침되는 것만 쓰고, 스팟까지의 이동·등반 소요 시간은 데이터가 없으니 지어내지 말고 직선거리 km 만 말한다. get_course 의 moreOreums(공공데이터 오름 목록)는 이름과 km 만 글(text)에서 언급할 수 있고 spotId 로는 쓰지 않는다. plan 을 쓸 때는 camps 는 비워도 된다.
 - 예약·연락처 질문처럼 캠핑장 목록이 필요 없는 질문은 camps 를 비우고 message 에 2문장 이내로 답한다.
 - 화면이 마크다운을 렌더링하지 않으므로 **굵게**, #, 목록 기호를 쓰지 않는다.
 - 반드시 ${LANG_NAME[lang] ?? LANG_NAME.ko}로 답한다.`;
@@ -119,11 +160,21 @@ const system = (lang) => `너는 '하르방 campmate'의 캐릭터 '하르방이
 async function shapeAnswer(input = {}, lang, steps) {
   const all = await listCamps({ lang });
   const byId = new Map(all.map((c) => [c.id, c]));
+  const spotName = new Map((await listStories({ lang })).map((s) => [s.id, s.name]));
+  const known = new Set(STORIES.map((s) => s.id));
   const camps = (Array.isArray(input.camps) ? input.camps : []).slice(0, 5).flatMap((x) => {
     const c = byId.get(String(x?.campId));
     return c ? [{ id: c.id, name: c.name, region: c.region, types: c.types, note: String(x.note ?? '').slice(0, 80) }] : [];
   });
-  return { answer: String(input.message ?? ''), camps, steps };
+  // 일정(plan): 캠핑장·스팟 id 는 실제 데이터에 있는 것만 연결(없는 id 는 글만 남김)
+  const days = (Array.isArray(input.plan?.days) ? input.plan.days : []).slice(0, 2).map((d) => ({
+    label: String(d?.label ?? '').slice(0, 30),
+    items: (Array.isArray(d?.items) ? d.items : []).slice(0, 5).map((it) => {
+      const c = byId.get(String(it?.campId)), sid = known.has(String(it?.spotId)) ? String(it.spotId) : null;
+      return { time: String(it?.time ?? '').slice(0, 30), text: String(it?.text ?? '').slice(0, 100), camp: c ? { id: c.id, name: c.name } : null, spot: sid ? { id: sid, name: spotName.get(sid) } : null };
+    }),
+  })).filter((d) => d.items.length);
+  return { answer: String(input.message ?? ''), camps, plan: days.length ? { title: String(input.plan?.title ?? '').slice(0, 60), days } : null, steps };
 }
 
 export default async function handler(req, res) {

@@ -92,11 +92,11 @@ export const useAppStore = create(
       chatLoading: false,
       sendMessage: async (text) => {
         // Claude 형식. 추천 캠핑장 이름도 붙여야 "그중 첫 번째는?" 같은 후속 질문을 이해합니다
-        const history = get().messages.map((m) => ({ role: m.role, content: m.camps?.length ? `${m.text}\n(추천: ${m.camps.map((c) => c.name).join(', ')})` : m.text }))
+        const history = get().messages.map((m) => ({ role: m.role, content: m.camps?.length ? `${m.text}\n(추천: ${m.camps.map((c) => c.name).join(', ')})` : m.plan?.days?.length ? `${m.text}\n(일정: ${m.plan.title || '1박 2일'})` : m.text }))
         set({ messages: [...get().messages, { role: 'user', text }], chatLoading: true })
         try {
-          const { answer, camps, steps } = await askAgent(text, history, get().lang)
-          set({ messages: [...get().messages, { role: 'assistant', text: answer, camps: camps ?? [], steps }] })
+          const { answer, camps, plan, steps } = await askAgent(text, history, get().lang)
+          set({ messages: [...get().messages, { role: 'assistant', text: answer, camps: camps ?? [], plan: plan ?? null, steps }] })
         } catch (e) {
           get().toast(e.message, 'danger')
         } finally {

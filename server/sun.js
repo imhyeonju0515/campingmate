@@ -15,10 +15,13 @@ export function moonPhase(date = new Date()) {
 const hhmm = (v) => { const s = String(v ?? '').trim().padStart(4, '0'); return `${s.slice(0, 2)}:${s.slice(2, 4)}`; };
 
 // 일몰 시각은 하루에 한 번만 바뀌므로 날짜별로 기억합니다
-export const getSun = () => cached(`sun:${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}`, 6 * 3600e3, fetchSun);
+export const getSun = ({ date } = {}) => {
+  const d = date ?? new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);   // 'YYYY-MM-DD', 기본은 오늘(한국 시간)
+  return cached(`sun:${d}`, 6 * 3600e3, () => fetchSun(d));
+};
 
-async function fetchSun() {
-  const locdate = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10).replaceAll('-', '');
+async function fetchSun(date) {
+  const locdate = date.replaceAll('-', '');
   const params = new URLSearchParams({ serviceKey: process.env.DATA_GO_KR_KEY, locdate, location: '제주' });
   const r = await fetch(`${BASE}?${params}`);
   const it = parser.parse(await r.text())?.response?.body?.items?.item;
