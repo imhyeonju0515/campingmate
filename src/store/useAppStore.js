@@ -15,6 +15,27 @@ export const useAppStore = create(
       lang: 'ko',                      // 'ko' | 'en' | 'zh' | 'ja'
       setLang: (lang) => set({ lang }),
 
+      // 로그인 사용자 (Supabase Auth) — 저장하지 않고 앱 시작 때 세션에서 복원 (RootLayout 에서)
+      user: null,
+      setUser: (user) => set({ user, ...(user?.user_metadata?.nickname ? { nickname: user.user_metadata.nickname } : {}) }),
+      signIn: async (email, password) => {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+      },
+      // 이메일 확인을 켜 둔 프로젝트는 session 이 null → true 를 돌려 "메일 확인" 안내를 띄웁니다
+      signUp: async (email, password, nick) => {
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nickname: nick.trim() } } })
+        if (error) throw error
+        return !data.session
+      },
+      signOut: async () => { await supabase.auth.signOut(); set({ user: null }) },
+      saveNickname: async (nick) => {
+        const nickname = nick.trim()
+        const { data, error } = await supabase.auth.updateUser({ data: { nickname } })
+        if (error) throw error
+        set({ nickname, user: data.user })
+      },
+
       // ② 알림(토스트) — 어느 페이지에서든 get().toast('메시지')
       toasts: [],
       toast: (message, variant = 'success') => {

@@ -7,6 +7,7 @@ import Stories from './pages/Stories'
 import MapPage from './pages/Map'
 import Agent from './pages/Agent'
 import Passport from './pages/Passport'
+import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 
 // ── 메뉴 목록 ────────────────────────────────────────────
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { path: 'map', element: <MapPage /> },
       { path: 'agent', element: <Agent /> },
       { path: 'passport', element: <Passport /> },
+      { path: 'login', element: <Login /> },
     ],
   },
 ])

@@ -1,8 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Container, Form, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap'
+import { useEffect } from 'react'
+import { Button, Container, Form, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap'
 import { NAV_ITEMS } from '../router'
 import { LANGS, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
+import { supabase } from '../lib/supabase'
 
 const ICONS = { home: 'house', camps: 'tree', stories: 'book', map: 'globe-asia-australia', agent: 'robot', passport: 'journal-bookmark' }
 
@@ -11,6 +13,17 @@ export default function RootLayout() {
   const toasts = useAppStore((s) => s.toasts)
   const lang = useAppStore((s) => s.lang)
   const setLang = useAppStore((s) => s.setLang)
+  const user = useAppStore((s) => s.user)
+  const nickname = useAppStore((s) => s.nickname)
+  const setUser = useAppStore((s) => s.setUser)
+
+  // 새로고침해도 로그인이 유지되도록 세션을 복원하고, 로그인·로그아웃 변화를 따라갑니다
+  useEffect(() => {
+    if (!supabase) return
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => sub.subscription.unsubscribe()
+  }, [setUser])
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -25,7 +38,10 @@ export default function RootLayout() {
               </Nav.Link>
             ))}
           </Nav>
-          <Form.Select size="sm" value={lang} onChange={(e) => setLang(e.target.value)} aria-label="language" className="ms-auto" style={{ width: 'auto' }}>
+          <Button as={NavLink} to="/login" size="sm" variant="light" className="ms-auto me-2">
+            <i className="bi bi-person-circle me-1" />{user ? (nickname || user.email.split('@')[0]) : t('login')}
+          </Button>
+          <Form.Select size="sm" value={lang} onChange={(e) => setLang(e.target.value)} aria-label="language" style={{ width: 'auto' }}>
             {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </Form.Select>
         </Container>

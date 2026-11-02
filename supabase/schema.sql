@@ -13,14 +13,14 @@ create table if not exists public.stamps (
 
 create index if not exists stamps_nickname_idx on public.stamps (nickname, created_at desc);
 
--- Row Level Security: 로그인이 없는 앱이라 anon 키로 "읽기·추가"만 허용하고, 수정·삭제는 막습니다.
+-- Row Level Security: 로그인이 없는 앱이라 anon·로그인 사용자 모두 "읽기·추가"만 허용하고, 수정·삭제는 막습니다.
 alter table public.stamps enable row level security;
 
 drop policy if exists "stamps_select" on public.stamps;
 drop policy if exists "stamps_insert" on public.stamps;
 
-create policy "stamps_select" on public.stamps for select to anon using (true);
-create policy "stamps_insert" on public.stamps for insert to anon with check (true);
+create policy "stamps_select" on public.stamps for select to anon, authenticated using (true);
+create policy "stamps_insert" on public.stamps for insert to anon, authenticated with check (true);
 
 -- ※ 닉네임으로만 구분하므로 누구나 모든 기록을 읽을 수 있습니다. 개인정보(실명 등)는 닉네임에 넣지 마세요.
 --   사용자별로 안전하게 나누려면 Supabase Auth 로그인을 붙이고 user_id 컬럼 + 정책을 추가해야 합니다.
