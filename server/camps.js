@@ -2,6 +2,7 @@
 // - DATA_GO_KR_KEY 가 있으면 한국관광공사 고캠핑(GoCamping) API 에서 제주 야영장을 가져옵니다.
 // - 키가 없거나 응답이 비면 샘플(가상) 캠핑장으로 대체합니다.
 import { localizeAddr } from './addr.js';
+import { campName, campNameEn } from './data/campNames.js';
 import { SAMPLE_CAMPS } from './data/camps.js';
 import { STORIES, pick } from './data/stories.js';
 
@@ -88,13 +89,14 @@ function storiesNear(c, lang, n) {
 }
 
 // 주소를 선택한 언어로 (검색은 한국어 원문으로 끝난 뒤에 바꿉니다). addrKo 는 지도·택시용 한국어 원문
-const localizeCamp = (c, lang) => (lang === 'ko' ? c : { ...c, addr: localizeAddr(c.addr, lang), addrKo: c.addr });
+// 이름도 선택한 언어로(영어 · 중국어 · 일본어 각각의 이름). nameKo 는 원래 한국어 이름
+const localizeCamp = (c, lang) => (lang === 'ko' ? c : { ...c, name: campName(c, lang), nameKo: c.name, addr: localizeAddr(c.addr, lang), addrKo: c.addr });
 
 export async function listCamps({ lang = 'ko', keyword = '', type = '', region = '' } = {}) {
   const kw = keyword.trim().toLowerCase();
   return (await allCamps(lang))
     .filter((c) => (!type || c.types.includes(type)) && (!region || c.region === region)
-      && (!kw || `${c.name} ${c.intro ?? ''} ${c.addr ?? ''}`.toLowerCase().includes(kw)))
+      && (!kw || `${c.name} ${campNameEn(c)} ${campName(c, lang)} ${c.intro ?? ''} ${c.addr ?? ''}`.toLowerCase().includes(kw)))   // 한국어·영문 이름 모두로 검색
     .map((c) => ({ ...localizeCamp(c, lang), stories: storiesNear(c, lang, 2).map(({ id, name, km }) => ({ id, name, km })) }));
 }
 

@@ -219,21 +219,23 @@ p, .card-text, .text-muted { text-wrap: pretty; }
 }
 
 /* ── 홈 히어로: 크레용 그림 장면 (초록 한라산 + 산 위의 하르방·텐트) ──────── */
-:root { --font-hand: "Gaegu", "Jua", system-ui, sans-serif; }
+:root { --font-hand: "Gamja Flower", "Jua", system-ui, sans-serif; }
 .hero-card { overflow: hidden; }
 .hero-scene { position: relative; aspect-ratio: 4 / 5; max-height: 620px; width: 100%; overflow: hidden; background: #f3efe6; }
-/* PC: 낮고 넓게 — 제목은 왼쪽, 산·하르방은 가운데에서 오른쪽 */
-@media (min-width: 768px) {
-  .hero-scene { aspect-ratio: auto; max-height: none; height: clamp(260px, 25vw, 330px); }
-  .hero-title { left: 4%; right: auto; width: 42%; padding: 0; top: 14%; text-align: left; }
-  .hero-title h1 { font-size: clamp(2rem, 3.6vw, 3.1rem); }
-  .hero-stage { left: 53%; width: clamp(90px, 9vw, 120px); }
-  .hero-tent { left: 63%; width: clamp(38px, 4.4vw, 58px); }
+/* 넓은 화면(576px~): 낮고 넓게 — 제목은 왼쪽(크게), 산·하르방은 가운데에서 오른쪽 */
+/* (아래 기본 규칙보다 뒤에 있어도 이기도록 .hero-scene 를 앞에 붙임) */
+@media (min-width: 576px) {
+  .hero-scene { aspect-ratio: auto; max-height: none; height: clamp(210px, 20vw, 262px); }
+  .hero-scene .hero-title { left: 4%; right: auto; width: 44%; padding: 0; top: 8%; text-align: left; }
+  .hero-scene .hero-title h1 { font-size: clamp(2.3rem, 4.4vw, 3.6rem); }
+  .hero-scene .hero-kicker { font-size: .78rem; }
+  .hero-scene .hero-stage { left: 54%; width: clamp(64px, 6.2vw, 88px); }
+  .hero-scene .hero-tent { left: 63.5%; width: clamp(30px, 3.6vw, 48px); }
 }
 .hero-sky { position: absolute; inset: 0; background: linear-gradient(#f6f2ea 0%, #ece6da 70%); }
 .hero-paper { position: absolute; inset: 0; pointer-events: none; opacity: .5; mix-blend-mode: multiply; z-index: 6; }
 
-.hero-cloud { position: absolute; animation: hero-float ease-in-out infinite alternate; }
+.hero-cloud { position: absolute; max-width: 190px; animation: hero-float ease-in-out infinite alternate; }
 @keyframes hero-float { from { transform: translate(0, 0); } to { transform: translate(9vw, -6px); } }
 
 /* 산: 아래 10% 에서 시작해 높이 54% → 산마루(평평한 윗면)는 위에서 약 50% 지점 */
@@ -263,13 +265,13 @@ p, .card-text, .text-muted { text-wrap: pretty; }
 
 .hero-title { position: absolute; top: 5%; left: 0; right: 0; padding: 0 7%; text-align: center; z-index: 5; animation: hero-title-in 1s ease-out .4s both; }
 .hero-kicker { font-size: .72rem; letter-spacing: .28em; font-weight: 800; color: #3b5a8a; }
-.hero-title h1 { font-family: var(--font-hand); font-weight: 700; font-size: clamp(1.8rem, 6.6vw, 3rem); line-height: 1.1; color: #263c6b; margin: .15rem 0 0; text-wrap: balance; }
+.hero-title h1 { font-family: var(--font-hand); font-weight: 700; font-size: clamp(2.15rem, 8.4vw, 3rem); line-height: 1.08; color: #263c6b; margin: .15rem 0 0; text-wrap: balance; }
 @keyframes hero-title-in { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
 
 /* 말풍선: 하르방 오른쪽 위 하늘 */
 .bubble.hero-bubble { position: absolute; left: 55%; right: 4%; top: 27%; z-index: 5; font-size: .85rem; text-wrap: balance; animation: hero-title-in .8s ease-out 2s both; }
 .bubble.hero-bubble::before { display: block; left: -9px; top: auto; bottom: 10px; }
-@media (min-width: 768px) { .bubble.hero-bubble { left: 59.5%; right: auto; max-width: 270px; font-size: .92rem; top: 14%; } }
+@media (min-width: 576px) { .bubble.hero-bubble { left: 61%; right: auto; max-width: 250px; font-size: .88rem; top: 12%; } }
 
 .hero-caption { background: var(--card); border-top: 2px solid #000; }
 
