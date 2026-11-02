@@ -39,7 +39,7 @@ export function oreumName(o, lang) {
 }
 
 const rad = (d) => (d * Math.PI) / 180;
-const distKm = (aLat, aLng, bLat, bLng) => 12742 * Math.asin(Math.sqrt(
+export const distKm = (aLat, aLng, bLat, bLng) => 12742 * Math.asin(Math.sqrt(
   Math.sin(rad(bLat - aLat) / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLng - aLng) / 2) ** 2));
 
 // 한 지점(캠핑장)에서 가까운 오름 n개 — 거리는 직선거리(km)

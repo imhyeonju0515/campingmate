@@ -32,6 +32,7 @@ export const fetchCamp = (id, lang = 'ko') => get(`/api/camps?id=${encodeURIComp
 
 // 오름·신화 스토리
 export const fetchPlace = (id, lang = 'ko') => get(`/api/place?id=${encodeURIComponent(id)}&lang=${lang}`)
+export const fetchOreums = (lang = 'ko') => get(`/api/oreums?lang=${lang}`)
 export const fetchStories = (lang = 'ko', tag = '') => get(`/api/stories?lang=${lang}&tag=${tag}`)
 
 // 캠핑 컨디션 (기상청 + 에어코리아 + 천문연구원) · 국가유산 (국가유산청)

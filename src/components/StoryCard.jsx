@@ -10,13 +10,13 @@ import { useAppStore } from '../store/useAppStore'
 const TAG_BG = { myth: 'primary', oreum: 'success', volcano: 'danger' }
 
 // 오름·신화 이야기 카드 + 도장 찍기 (스토리 목록·캠핑장 상세에서 재사용)
-export default function StoryCard({ story, campId }) {
+export default function StoryCard({ story, campId, defaultOpen = false }) {
   const t = useT()
   const area = useArea()
   const lang = useAppStore((s) => s.lang)
   const { stamp, onStamp, locating, fresh } = useStamp(story, campId)
   const [heritage, setHeritage] = useState([])
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)   // ?spot= 으로 들어오면 상세 창을 바로 엽니다
 
   // 키워드가 있는 스팟은 국가유산청에서 관련 유산을 찾아 붙입니다 (실패해도 무시)
   useEffect(() => {

@@ -195,29 +195,6 @@ p, .card-text, .text-muted { text-wrap: pretty; }
 /* 위쪽으로 꼬리가 달린 말풍선 (가운데 정렬한 하르방 아래) */
 .bubble.bubble-up::before { display: block; left: 50%; top: -9px; margin-left: -7px; border-left: 2px solid #000; border-top: 2px solid #000; border-bottom: 0; transform: rotate(45deg); }
 
-/* ── 하르방 길 ─────────────────────────────────────────── */
-.trail-map { position: relative; width: 100%; max-width: 640px; margin: 0 auto; background: #cfe9f1; border: 2px solid #000; border-radius: 1rem; box-shadow: 3px 3px 0 #000; overflow: hidden; }
-.trail-node { cursor: pointer; }
-.trail-node:focus-visible circle { stroke-width: 4; }
-@keyframes trail-pulse { 0% { r: 12; opacity: .9; } 100% { r: 22; opacity: 0; } }
-.trail-pulse { animation: trail-pulse 1.4s ease-out infinite; }
-.trail-harubang { position: absolute; width: 46px; transform: translate(-50%, -88%); pointer-events: none;
-  transition: left 1s cubic-bezier(.45, .05, .25, 1), top 1s cubic-bezier(.45, .05, .25, 1); filter: drop-shadow(0 3px 0 rgb(0 0 0 / .25)); }
-@keyframes trail-hop { 0%, 100% { margin-top: 0; } 50% { margin-top: -10px; } }
-.trail-harubang.walking > svg { animation: wobble .35s ease-in-out infinite, trail-hop .35s ease-in-out infinite; }
-.trail-bubble { max-width: 640px; margin-left: auto; margin-right: auto; font-size: 1rem; animation: trail-bubble-in .35s ease-out both; }
-@keyframes trail-bubble-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.trail-title { font-family: var(--font-round); font-size: 1.35rem; line-height: 1.2; margin-bottom: .25rem; }
-.trail-text { min-height: 4.5em; font-weight: 600; }
-.trail-dots { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; }
-.trail-dots button { width: .7rem; height: .7rem; padding: 0; border: 2px solid #000; border-radius: 50%; background: #fff; }
-.trail-dots button.done { background: var(--green); }
-.trail-dots button.here { background: var(--brand); transform: scale(1.35); }
-@media (prefers-reduced-motion: reduce) {
-  .trail-harubang { transition: none; }
-  .trail-harubang.walking > svg, .trail-pulse, .trail-bubble { animation: none; }
-}
-
 /* ── 홈 히어로: 크레용 그림 장면 (초록 한라산 + 산 위의 하르방·텐트) ──────── */
 :root { --font-hand: "Gamja Flower", "Jua", system-ui, sans-serif; }
 .hero-card { overflow: hidden; }

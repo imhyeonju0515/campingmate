@@ -3,7 +3,7 @@ import { distKm, getPosition, STAMP_RADIUS_KM } from './geo'
 import { useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
-// 이야기 스팟 도장 찍기 — 이야기 카드와 하르방 길이 같이 씁니다.
+// 이야기 스팟 도장 찍기 — 이야기 카드가 씁니다.
 // 도장은 스팟 1km 안에서만 찍힙니다 (브라우저 위치 기준 — 서버가 검증하는 것은 아니라서 진짜 부정 방지는 아님)
 export function useStamp(story, campId) {
   const t = useT()
