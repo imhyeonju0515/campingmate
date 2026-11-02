@@ -7,7 +7,7 @@ import { campFit } from '../../server/wind.js'   // 서버와 같은 바람 적�
 import { useConditions, REGIONS } from '../lib/useConditions'
 import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
-import Harubang from '../components/Harubang'
+import HeroScene from '../components/HeroScene'
 import ConditionCard from '../components/ConditionCard'
 import CampCard from '../components/CampCard'
 import { ErrorAlert } from '../components/Status'
@@ -40,14 +40,11 @@ export default function Home() {
 
   return (
     <>
-      <section className="card shadow-sm mb-4">
-        <div className="card-body p-4 p-md-5 text-center">
-          {/* 가운데 정렬: 하르방 → (위쪽 꼬리가 하르방을 가리키는) 말풍선 → 제목 → 설명 → 버튼 */}
-          <Harubang mood={mood} size={130} />
-          <div className="mt-3 mb-3"><div className="bubble bubble-up d-inline-block">{say}</div></div>
-          <div className="small fw-bold text-info mb-1">JEJU CAMPMATE</div>
-          <h1 className="fw-bold">{t('heroTitle')}</h1>
-          <p className="text-muted">{t('heroSub')}</p>
+      {/* 홈 맨 위: 크레용 그림 장면(한라산·구름·바다에서 솟는 하르방) + 설명·버튼 */}
+      <section className="card shadow-sm mb-4 hero-card">
+        <HeroScene mood={mood} say={say} title={t('heroTitle')} />
+        <div className="hero-caption text-center p-3 p-md-4">
+          <p className="text-muted mb-3">{t('heroSub')}</p>
           <div className="d-flex flex-wrap justify-content-center align-items-center gap-3">
             <Link to="/camps" className="btn btn-primary btn-lg">{t('start')} <i className="bi bi-arrow-right" /></Link>
             <Link to="/map" className="btn btn-outline-primary btn-lg"><i className="bi bi-globe-asia-australia me-1" />{t('map')}</Link>
