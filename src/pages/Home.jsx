@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Col, Row } from 'react-bootstrap'
+import { Button, ButtonGroup, Col, Row } from 'react-bootstrap'
+import ForecastStrip from '../components/ForecastStrip'
 import { fetchCamps } from '../api/client'
 import { campFit } from '../../server/wind.js'   // 서버와 같은 바람 적합도 규칙
 import { useConditions, REGIONS } from '../lib/useConditions'
@@ -19,6 +20,7 @@ export default function Home() {
   const { data: cond, failed } = useConditions()
   const [camps, setCamps] = useState([])
   const [error, setError] = useState('')
+  const [fcPlace, setFcPlace] = useState(REGIONS[0])
 
   useEffect(() => {
     setError('')
@@ -60,6 +62,12 @@ export default function Home() {
       <Row xs={1} md={2} className="g-3 mb-4">
         {REGIONS.map((r) => <Col key={r}><ConditionCard place={r} cond={cond[r]} failed={failed} /></Col>)}
       </Row>
+
+      <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
+      <ButtonGroup className="mb-3">
+        {REGIONS.map((r) => <Button key={r} variant={fcPlace === r ? 'dark' : 'outline-dark'} size="sm" onClick={() => setFcPlace(r)}>{r}</Button>)}
+      </ButtonGroup>
+      <div className="mb-4"><ForecastStrip place={fcPlace} /></div>
 
       <Row xs={1} sm={2} lg={3} className="g-3">
         {picks.map((c) => <Col key={c.id}><CampCard camp={c} fit={fitOf(c)} /></Col>)}

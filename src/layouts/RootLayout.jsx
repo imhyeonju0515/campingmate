@@ -20,8 +20,9 @@ export default function RootLayout() {
   // 새로고침해도 로그인이 유지되도록 세션을 복원하고, 로그인·로그아웃 변화를 따라갑니다
   useEffect(() => {
     if (!supabase) return
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    const apply = (u) => { setUser(u); if (u) useAppStore.getState().syncFavorites() }
+    supabase.auth.getSession().then(({ data }) => apply(data.session?.user ?? null))
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => apply(session?.user ?? null))
     return () => sub.subscription.unsubscribe()
   }, [setUser])
 

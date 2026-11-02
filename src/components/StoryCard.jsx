@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap'
 import StampMark from './StampMark'
 import { fetchHeritage } from '../api/client'
+import { distKm, getPosition, STAMP_RADIUS_KM } from '../lib/geo'
 import { useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
@@ -15,16 +16,28 @@ export default function StoryCard({ story, campId }) {
   const toast = useAppStore((s) => s.toast)
   const [heritage, setHeritage] = useState([])
   const [fresh, setFresh] = useState(false)
+  const [locating, setLocating] = useState(false)
 
   // 키워드가 있는 스팟은 국가유산청에서 관련 유산을 찾아 붙입니다 (실패해도 무시)
   useEffect(() => {
     if (story.keyword) fetchHeritage(story.keyword).then((l) => setHeritage(l.slice(0, 3))).catch(() => {})
   }, [story.keyword])
 
+  // 도장은 이 스팟 1km 안에서만 찍힙니다 (브라우저 위치 기준 — 서버가 검증하는 것은 아니라서 진짜 부정 방지는 아님)
   async function onStamp() {
-    await stampSpot({ spotId: story.id, name: story.name, tag: story.tag, campId })
-    setFresh(true)
-    toast(t('stampSay'))
+    setLocating(true)
+    try {
+      const me = await getPosition()
+      const km = distKm(me.lat, me.lng, story.lat, story.lng)
+      if (km > STAMP_RADIUS_KM) return toast(`${t('stampTooFar')} (${km.toFixed(1)} km)`, 'warning')
+      await stampSpot({ spotId: story.id, name: story.name, tag: story.tag, campId })
+      setFresh(true)
+      toast(t('stampSay'))
+    } catch (e) {
+      toast(t({ unsupported: 'stampNoGeo', denied: 'stampDenied' }[e.code] ?? 'stampUnavail'), 'warning')
+    } finally {
+      setLocating(false)
+    }
   }
 
   return (
@@ -50,7 +63,14 @@ export default function StoryCard({ story, campId }) {
           <Col xs={12} sm="auto" className="d-flex justify-content-center" style={{ minWidth: 110 }}>
             {stamp
               ? <StampMark label={story.name} date={stamp.at.slice(5, 10)} animate={fresh} />
-              : <Button onClick={onStamp}><i className="bi bi-patch-check me-1" />{t('stamp')}</Button>}
+              : (
+                <div className="text-center">
+                  <Button onClick={onStamp} disabled={locating}>
+                    <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
+                  </Button>
+                  <div className="small text-muted mt-1" style={{ maxWidth: 150 }}>{t('stampNote')}</div>
+                </div>
+              )}
           </Col>
         </Row>
       </Card.Body>

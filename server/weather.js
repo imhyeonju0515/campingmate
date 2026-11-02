@@ -17,11 +17,12 @@ function baseDateTime() {
   };
 }
 
-export async function getWeather({ place = '제주시' } = {}) {
+// 시간대별 예보를 { 'YYYYMMDD HHMM': { TMP, WSD, ... } } 로 모읍니다 (rows: 가져올 행 수 — 3일치는 1000 정도)
+async function fetchSlots(place, rows) {
   const [nx, ny] = GRID[place] ?? GRID['제주시'];
   const params = new URLSearchParams({
     serviceKey: process.env.DATA_GO_KR_KEY,
-    dataType: 'JSON', numOfRows: '300', pageNo: '1',
+    dataType: 'JSON', numOfRows: String(rows), pageNo: '1',
     nx: String(nx), ny: String(ny), ...baseDateTime(),
   });
   const r = await fetch(`${BASE}?${params}`);
@@ -36,6 +37,11 @@ export async function getWeather({ place = '제주시' } = {}) {
     const key = `${it.fcstDate} ${it.fcstTime}`;
     (slots[key] ??= {})[it.category] = it.fcstValue;
   }
+  return slots;
+}
+
+export async function getWeather({ place = '제주시' } = {}) {
+  const slots = await fetchSlots(place, 300);
   // 이미 지난 시간대는 빼고 "지금 이후" 예보부터 6칸 (발표 시각 기준 첫 칸은 몇 시간 전일 수 있음)
   const k = new Date(Date.now() + 9 * 3600e3).toISOString()
   const nowKey = `${k.slice(0, 10).replaceAll('-', '')} ${k.slice(11, 13)}00`
@@ -48,4 +54,30 @@ export async function getWeather({ place = '제주시' } = {}) {
     vec: Number(v.VEC),                                                    // 풍향(바람이 불어오는 방향, 도)
     dir: COMPASS[Math.round((Number(v.VEC) % 360) / 22.5) % 16],
   }));
+}
+
+// 날짜별 요약 (오늘부터 최대 3일): 풍속은 그날 가장 센 시간대 기준 — 텐트는 순간적인 강풍에 약하므로
+export async function getForecast({ place = '제주시' } = {}) {
+  const slots = await fetchSlots(place, 1000);
+  const days = {};
+  for (const [time, v] of Object.entries(slots)) {
+    const d = time.slice(0, 8);
+    (days[d] ??= []).push(v);
+  }
+  return Object.entries(days).slice(0, 3).map(([d, list]) => {
+    const winds = list.map((v) => Number(v.WSD)).filter(Number.isFinite);
+    const temps = list.map((v) => Number(v.TMP)).filter(Number.isFinite);
+    const vecs = list.map((v) => Number(v.VEC)).filter(Number.isFinite);
+    const peak = winds.length ? winds.indexOf(Math.max(...winds)) : -1;
+    const windMax = winds.length ? Math.max(...winds) : null;
+    return {
+      place, date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`,
+      windMax, windAvg: winds.length ? Math.round((winds.reduce((a, b) => a + b, 0) / winds.length) * 10) / 10 : null,
+      dir: peak >= 0 && vecs[peak] != null ? COMPASS[Math.round((vecs[peak] % 360) / 22.5) % 16] : null,
+      popMax: Math.max(0, ...list.map((v) => Number(v.POP)).filter(Number.isFinite)),
+      rain: list.some((v) => Number(v.PTY) > 0),
+      tempMin: temps.length ? Math.min(...temps) : null, tempMax: temps.length ? Math.max(...temps) : null,
+      hours: list.length,   // 예보가 일부 시간대만 있으면(오늘 남은 시간·3일째 끝) 작게 나옵니다
+    };
+  });
 }

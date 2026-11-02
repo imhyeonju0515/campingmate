@@ -24,3 +24,24 @@ create policy "stamps_insert" on public.stamps for insert to anon, authenticated
 
 -- ※ 닉네임으로만 구분하므로 누구나 모든 기록을 읽을 수 있습니다. 개인정보(실명 등)는 닉네임에 넣지 마세요.
 --   사용자별로 안전하게 나누려면 Supabase Auth 로그인을 붙이고 user_id 컬럼 + 정책을 추가해야 합니다.
+
+
+-- ───────── 즐겨찾기 (로그인한 사용자만, 내 것만 읽고·추가하고·삭제) ─────────
+create table if not exists public.favorites (
+  user_id    uuid        not null default auth.uid() references auth.users(id) on delete cascade,
+  camp_id    text        not null,                 -- 고캠핑 contentId
+  created_at timestamptz not null default now(),
+  primary key (user_id, camp_id)
+);
+
+alter table public.favorites enable row level security;
+
+drop policy if exists "fav_select" on public.favorites;
+drop policy if exists "fav_insert" on public.favorites;
+drop policy if exists "fav_update" on public.favorites;
+drop policy if exists "fav_delete" on public.favorites;
+
+create policy "fav_select" on public.favorites for select to authenticated using (user_id = auth.uid());
+create policy "fav_insert" on public.favorites for insert to authenticated with check (user_id = auth.uid());
+create policy "fav_update" on public.favorites for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "fav_delete" on public.favorites for delete to authenticated using (user_id = auth.uid());

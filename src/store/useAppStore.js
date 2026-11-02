@@ -36,6 +36,32 @@ export const useAppStore = create(
         set({ nickname, user: data.user })
       },
 
+      // 즐겨찾기 — 캠핑장 id 목록. localStorage 에 저장하고, 로그인 중이면 Supabase favorites 테이블과 맞춥니다
+      favorites: [],
+      isFav: (id) => get().favorites.includes(id),
+      toggleFav: async (id) => {
+        const on = !get().favorites.includes(id)
+        set({ favorites: on ? [...get().favorites, id] : get().favorites.filter((x) => x !== id) })
+        const user = get().user
+        if (!supabase || !user) return
+        const { error } = on
+          ? await supabase.from('favorites').upsert({ user_id: user.id, camp_id: id })
+          : await supabase.from('favorites').delete().eq('user_id', user.id).eq('camp_id', id)
+        if (error) get().toast(error.message, 'warning')
+      },
+      // 로그인 직후: 내 계정의 즐겨찾기와 이 기기의 즐겨찾기를 합칩니다
+      syncFavorites: async () => {
+        const user = get().user
+        if (!supabase || !user) return
+        const { data, error } = await supabase.from('favorites').select('camp_id')
+        if (error) return get().toast(error.message, 'warning')
+        const remote = data.map((r) => r.camp_id)
+        const local = get().favorites
+        set({ favorites: [...new Set([...remote, ...local])] })
+        const missing = local.filter((id) => !remote.includes(id))
+        if (missing.length) await supabase.from('favorites').upsert(missing.map((camp_id) => ({ user_id: user.id, camp_id })))
+      },
+
       // ② 알림(토스트) — 어느 페이지에서든 get().toast('메시지')
       toasts: [],
       toast: (message, variant = 'success') => {
@@ -77,7 +103,7 @@ export const useAppStore = create(
     }),
     {
       name: 'harubang-windcamp-store',                                // localStorage 키 이름
-      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps }),
+      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps, favorites: s.favorites }),
     },
   ),
 )

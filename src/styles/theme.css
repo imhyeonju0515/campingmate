@@ -131,3 +131,10 @@ main { padding-bottom: 5.5rem; }
 /* Brite 는 outline-dark 버튼도 검정으로 채워 버려서, 평소엔 카드색·선택/hover 때만 검정 */
 .btn-outline-dark { --bs-btn-color: #000; color: #000; background-color: var(--card); }
 .btn-outline-dark:hover, .btn-outline-dark:active, .btn-outline-dark.active, .btn-check:checked + .btn-outline-dark { background-color: #000; color: #fff; }
+
+/* 즐겨찾기 하트 */
+.fav-btn { border: 2px solid #000; background: var(--card); color: #000; width: 2.1rem; height: 2.1rem; flex-shrink: 0;
+  border-radius: 50%; display: grid; place-items: center; padding: 0; line-height: 1; cursor: pointer; }
+.fav-btn.on { background: var(--sun); }
+.fav-btn.on i { color: #e0245e; }
+.fav-corner { position: absolute; top: .5rem; right: .5rem; z-index: 2; }

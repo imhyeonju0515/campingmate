@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getCamp, listCamps, listStories } from '../server/camps.js';
 import { getCondition } from '../server/condition.js';
+import { getForecast } from '../server/weather.js';
 import { searchHeritage } from '../server/heritage.js';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -43,6 +44,15 @@ const tools = [
     },
   },
   {
+    name: 'get_forecast',
+    description: '기상청 단기예보로 제주시/서귀포시의 오늘부터 최대 3일간 날짜별 최대 풍속·풍향·강수확률·기온을 조회한다. "이번 주말/내일/모레 어디가 좋아?" 같은 날짜 질문에 쓴다',
+    input_schema: {
+      type: 'object',
+      properties: { place: { type: 'string', enum: ['제주시', '서귀포시'] } },
+      required: ['place'],
+    },
+  },
+  {
     name: 'search_heritage',
     description: '국가유산청 API로 제주의 국가유산(문화재)을 이름으로 검색한다. 이야기 소재용',
     input_schema: { type: 'object', properties: { keyword: { type: 'string' } } },
@@ -57,6 +67,7 @@ const makeRunTool = (lang) => ({
   get_camp_detail: (a) => getCamp({ id: a.campId, lang }),
   list_oreum_stories: (a) => listStories({ ...a, lang }),
   get_camp_condition: getCondition,
+  get_forecast: getForecast,
   search_heritage: searchHeritage,
 });
 
@@ -65,6 +76,7 @@ const system = (lang) => `너는 '하르방 campmate'의 캐릭터 '하르방이
 - 캠핑장 데이터의 source 가 'sample' 이면 실제 업체가 아닌 가상 예시이므로, 실제 추천처럼 말하지 말고 샘플이라고 밝힌다.
 - 바람 등급 기준(경험칙, 공식 안전 기준 아님): 4m/s 미만 잔잔, 4~7 산들바람, 7~10 강풍 주의, 10 이상 텐트 위험.
 - 일반야영은 강풍 주의부터 비추천, 자동차야영은 위험 단계에서 비추천, 글램핑·카라반은 비교적 바람에 강하다. 위험하면 날짜 변경이나 실내형 숙소도 제안한다.
+- 날짜가 있는 질문(내일·모레·주말)은 get_forecast 로 날짜별 풍속을 확인한다. 예보는 오늘부터 최대 3일치뿐이라, 그 너머 날짜는 예보가 없다고 말한다.
 - 비 예보나 미세먼지가 나쁘면 함께 알려 준다.
 - 예약·연락처를 물으면 도구 결과의 tel(전화), resveUrl(온라인 예약), homepage, reserve(예약 방식)만 그대로 알려 준다. 값이 비어 있으면 "등록된 정보가 없다"고 말하고 번호나 주소를 지어내지 않는다. 요금·예약 가능 여부는 직접 확인하라고 덧붙인다.
 - 캠핑장을 추천할 때는 가까운 오름·신화 스토리 한 가지를 곁들여 짧게 들려준다.

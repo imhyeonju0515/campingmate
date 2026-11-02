@@ -4,6 +4,8 @@ import { Alert, Badge, Card, Col, Row } from 'react-bootstrap'
 import ConditionCard from '../components/ConditionCard'
 import StoryCard from '../components/StoryCard'
 import ReserveCard from '../components/ReserveCard'
+import ForecastStrip from '../components/ForecastStrip'
+import FavButton from '../components/FavButton'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
@@ -53,7 +55,10 @@ export default function CampDetail() {
             {camp.pet && <Badge bg="light" text="dark"><i className="bi bi-heart-fill text-danger me-1" />{t('pet')}</Badge>}
             <span className="small text-muted">{camp.source === 'gocamping' ? t('live') : t('sample')}</span>
           </div>
-          <h1 className="fw-bold h2">{camp.name}</h1>
+          <div className="d-flex justify-content-between align-items-start gap-2">
+            <h1 className="fw-bold h2">{camp.name}</h1>
+            <FavButton campId={camp.id} />
+          </div>
           {camp.intro && <p className="text-muted mb-1">{camp.intro}</p>}
           {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" />{camp.addr}</div>}
         </Card.Body>
@@ -67,6 +72,9 @@ export default function CampDetail() {
         </Alert>
       )}
       <div className="mb-4"><ConditionCard place={camp.region} cond={cond} failed={condFailed} /></div>
+
+      <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
+      <div className="mb-4"><ForecastStrip place={camp.region} types={camp.types} /></div>
 
       <h5 className="fw-bold mb-3"><i className="bi bi-signpost-2-fill text-primary me-2" />{t('nearStories')}</h5>
       <Row xs={1} className="g-3 mb-4">
