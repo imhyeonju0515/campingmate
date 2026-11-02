@@ -1,4 +1,5 @@
 // 기상청 단기예보 조회서비스 (VilageFcstInfoService_2.0)
+import { cached } from './cache.js';
 const BASE = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst';
 const GRID = { '제주시': [53, 38], '서귀포시': [52, 33] }; // 기상청 격자 좌표(nx, ny)
 const SKY = { 1: '맑음', 3: '구름많음', 4: '흐림' };
@@ -18,7 +19,10 @@ function baseDateTime() {
 }
 
 // 시간대별 예보를 { 'YYYYMMDD HHMM': { TMP, WSD, ... } } 로 모읍니다 (rows: 가져올 행 수 — 3일치는 1000 정도)
-async function fetchSlots(place, rows) {
+// 예보는 3시간마다 갱신되므로 10분 기억 (발표시각이 바뀌면 키가 달라져 새로 받습니다)
+const fetchSlots = (place, rows) => cached(`wx:${place}:${rows}:${JSON.stringify(baseDateTime())}`, 10 * 60e3, () => loadSlots(place, rows));
+
+async function loadSlots(place, rows) {
   const [nx, ny] = GRID[place] ?? GRID['제주시'];
   const params = new URLSearchParams({
     serviceKey: process.env.DATA_GO_KR_KEY,

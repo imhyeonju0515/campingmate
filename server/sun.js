@@ -1,5 +1,6 @@
 // 한국천문연구원 출몰시각 정보(일출·일몰) + 달 위상(직접 계산)
 import { XMLParser } from 'fast-xml-parser';
+import { cached } from './cache.js';
 const parser = new XMLParser();
 const BASE = 'https://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getAreaRiseSetInfo';
 
@@ -13,7 +14,10 @@ export function moonPhase(date = new Date()) {
 
 const hhmm = (v) => { const s = String(v ?? '').trim().padStart(4, '0'); return `${s.slice(0, 2)}:${s.slice(2, 4)}`; };
 
-export async function getSun() {
+// 일몰 시각은 하루에 한 번만 바뀌므로 날짜별로 기억합니다
+export const getSun = () => cached(`sun:${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}`, 6 * 3600e3, fetchSun);
+
+async function fetchSun() {
   const locdate = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10).replaceAll('-', '');
   const params = new URLSearchParams({ serviceKey: process.env.DATA_GO_KR_KEY, locdate, location: '제주' });
   const r = await fetch(`${BASE}?${params}`);

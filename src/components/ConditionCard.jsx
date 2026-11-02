@@ -33,7 +33,7 @@ export default function ConditionCard({ place, cond, failed }) {
               <Stat icon="thermometer-half" label={t('temp')} value={w ? `${w.temp}℃` : '-'} sub={w ? t(`sky_${w.skyCode}`) : ''} />
               <Stat icon="cloud-rain" label={t('rainProb')} value={w ? `${w.pop}%` : '-'} sub={w ? t(`pty_${w.ptyCode}`) : ''} />
               <Stat icon="sunset" label={t('sunset')} value={cond.sun?.sunset ?? '-'} sub={`${t('moon')} ${cond.moon.illumination}%`} />
-              <Stat icon="wind" label={t('dust')} value={cond.air?.pm10 ?? '-'} sub={cond.air?.pm25 != null ? `PM2.5 ${cond.air.pm25}` : ''} />
+              <Stat icon="wind" label={t('dust')} value={cond.air?.pm10 ?? '-'} sub={cond.air?.pm25 != null ? `PM2.5 ${cond.air.pm25}` : cond.air ? '' : t('noData')} />
             </Row>
             {cond.errors?.length > 0 && <div className="small text-muted mt-2">{t('condPartial')}</div>}
           </>
