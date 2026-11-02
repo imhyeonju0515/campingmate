@@ -150,3 +150,28 @@ main { padding-bottom: 5.5rem; }
 .addr-wrap { display: inline; }
 .copy-btn { border: 0; background: transparent; color: var(--brand-text); padding: 0 .25rem; margin-left: .2rem; line-height: 1; font-size: 1rem; vertical-align: -1px; cursor: pointer; }
 .copy-btn:hover { color: #2c5513; }
+
+/* ── 패스포트 ─────────────────────────────────────────── */
+.passport-cover {
+  --cover: #d9b77e; --cover-ink: #4a3418;
+  position: relative; width: min(100%, 320px); aspect-ratio: 3 / 4; margin: 0 auto;
+  background: var(--cover); color: var(--cover-ink);
+  border: 2px solid #000; border-radius: 14px 6px 6px 14px; box-shadow: 5px 5px 0 #000;
+  background-image: radial-gradient(rgb(0 0 0 / .06) 1px, transparent 1px); background-size: 6px 6px;
+}
+.passport-cover::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 14px; background: rgb(0 0 0 / .18); border-radius: 12px 0 0 12px; }
+.passport-cover-frame { position: absolute; inset: 16px 16px 16px 28px; border: 2px solid var(--cover-ink); opacity: .7; }
+.passport-cover-body { position: absolute; inset: 16px 16px 16px 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; text-align: center; }
+.pc-small { font-size: .62rem; letter-spacing: .3em; opacity: .8; font-weight: 700; }
+.pc-title { font-family: Georgia, 'Times New Roman', serif; font-size: 1.9rem; font-weight: 700; letter-spacing: .14em; line-height: 1.1; }
+.pc-emblem { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--cover-ink); display: grid; place-items: center; background: rgb(255 255 255 / .22); margin: .4rem 0; }
+.pc-journal { font-family: var(--font-round); font-size: .85rem; letter-spacing: .06em; }
+.pc-name { font-family: var(--font-round); font-size: 1rem; margin-top: .2rem; padding: 0 .75rem; border-top: 1px solid var(--cover-ink); }
+.pc-stamp { position: absolute; z-index: 2; }
+.pc-stamp .stamp-mark { background: rgb(255 254 246 / .92); border-radius: 50%; }
+.cover-swatch { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid #000; padding: 0; cursor: pointer; }
+.cover-swatch.on { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px #000; }
+.stamp-empty { width: 84px; height: 84px; border: 3px dashed #9a9a8a; border-radius: 50%; display: grid; place-items: center; color: #9a9a8a; font-size: 1.4rem; text-decoration: none; }
+.stamp-empty:hover { border-color: #000; color: #000; }
+.pp-avatar { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid #000; background: var(--sun); display: grid; place-items: center; font-family: var(--font-round); font-size: 1.1rem; }
+.pc-stamp .stamp-mark span { font-size: 11px !important; }

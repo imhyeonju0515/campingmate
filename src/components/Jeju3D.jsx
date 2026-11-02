@@ -1,3 +1,4 @@
+import { COAST_LATLNG } from '../lib/jejuCoast'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Html, OrbitControls, RoundedBox } from '@react-three/drei'
@@ -14,13 +15,7 @@ const toXZ = (lat, lng) => [((lng - CENTER.lng) * 93) / K, ((CENTER.lat - lat) *
 const SEA = -0.37                                   // 바다 높이
 const HALF_X = 8, HALF_Z = 5                        // 받침대 반폭 (16 x 10)
 
-// 제주 해안 근사 (시계 방향, 제주항에서 시작) — [위도, 경도]
-const COAST = [
-  [33.525, 126.53], [33.545, 126.64], [33.560, 126.75], [33.535, 126.85], [33.505, 126.93], [33.465, 126.945],
-  [33.430, 126.92], [33.320, 126.84], [33.270, 126.72], [33.255, 126.62], [33.240, 126.56], [33.245, 126.41],
-  [33.232, 126.34], [33.215, 126.30], [33.205, 126.265], [33.222, 126.19], [33.295, 126.165], [33.395, 126.235],
-  [33.420, 126.265], [33.470, 126.315], [33.510, 126.45],
-].map(([la, lo]) => toXZ(la, lo))
+const COAST = COAST_LATLNG.map(([la, lo]) => toXZ(la, lo))   // 해안 좌표는 lib/jejuCoast.js (패스포트 미니 지도와 공유)
 
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t) }
 function mulberry32(a) {

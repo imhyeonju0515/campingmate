@@ -12,6 +12,8 @@ export const useAppStore = create(
       // ① 사용자·언어 — localStorage 에 저장되어 새로고침해도 유지
       nickname: '',
       setNickname: (nickname) => set({ nickname: nickname.trim() }),
+      coverColor: 'kraft',             // 패스포트 표지 색 'kraft' | 'wine' | 'forest' | 'navy'
+      setCoverColor: (coverColor) => set({ coverColor }),
       lang: 'ko',                      // 'ko' | 'en' | 'zh' | 'ja'
       setLang: (lang) => set({ lang }),
 
@@ -103,7 +105,7 @@ export const useAppStore = create(
     }),
     {
       name: 'harubang-windcamp-store',                                // localStorage 키 이름
-      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps, favorites: s.favorites }),
+      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps, favorites: s.favorites, coverColor: s.coverColor }),
     },
   ),
 )

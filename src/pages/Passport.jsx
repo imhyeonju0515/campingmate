@@ -1,21 +1,29 @@
-import { useEffect, useState } from 'react'
-import { Card, Col, Form, Row } from 'react-bootstrap'
-import { fetchStories } from '../api/client'
-import PageHeader from '../components/PageHeader'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap'
+import PassportCover, { COVERS } from '../components/PassportCover'
+import PassportMap from '../components/PassportMap'
 import StampMark from '../components/StampMark'
-import { Empty } from '../components/Status'
+import { fetchStories } from '../api/client'
 import { useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
-// 내 패스포트 — store 의 stamps 와 배지를 보여줍니다
+// 내 패스포트 — 표지 / 도장 / 지도 세 가지 보기. 표지 색은 고를 수 있고 브라우저에 저장됩니다.
 export default function Passport() {
   const t = useT()
-  const { nickname, setNickname, stamps, resetStamps } = useAppStore()
+  const { nickname, setNickname, stamps, resetStamps, coverColor, setCoverColor, toast } = useAppStore()
   const lang = useAppStore((s) => s.lang)
-  const [names, setNames] = useState({})
+  const [stories, setStories] = useState([])
+  const [view, setView] = useState('cover')   // 'cover' | 'stamps' | 'map'
+
   useEffect(() => {
-    fetchStories(lang).then((l) => setNames(Object.fromEntries(l.map((s) => [s.id, s.name])))).catch(() => {})
+    fetchStories(lang).then(setStories).catch(() => {})
   }, [lang])
+
+  // 도장 이름은 찍을 때의 언어로 저장돼 있어서, 지금 언어의 스토리 이름으로 바꿔 보여 줍니다
+  const names = useMemo(() => Object.fromEntries(stories.map((s) => [s.id, s.name])), [stories])
+  const stamped = useMemo(() => new Set(stamps.map((s) => s.spotId)), [stamps])
+  const total = stories.length || 9
 
   const badges = [
     { key: 'b_first', on: stamps.length >= 1 },
@@ -24,14 +32,74 @@ export default function Passport() {
     { key: 'b_myth', on: stamps.filter((s) => s.tag === 'myth').length >= 2 },   // 신화 스토리 2개 이상
   ]
 
+  // 공유: 휴대폰은 공유 창, 그 밖에는 문구를 복사
+  async function onShare() {
+    const text = `${t('brand')} · ${t('passportTitle')} ${stamps.length} / ${total} ${t('ppSpots')}`
+    try {
+      if (navigator.share) await navigator.share({ title: t('brand'), text, url: location.origin })
+      else { await navigator.clipboard.writeText(`${text} ${location.origin}`); toast(t('ppShared')) }
+    } catch { /* 공유 창을 닫은 경우 등 */ }
+  }
+
   return (
     <>
-      <PageHeader icon="journal-bookmark" title={t('passportTitle')} />
-      <Form.Control className="mb-4" style={{ maxWidth: 320 }} placeholder={t('nickname')}
-        value={nickname} onChange={(e) => setNickname(e.target.value)} />
+      <div className="d-flex justify-content-between align-items-start mb-3 gap-2">
+        <div>
+          <h2 className="fw-bold mb-0">{t('passportTitle')}</h2>
+          <div className="text-muted">{stamps.length} / {total} {t('ppSpots')}</div>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <Button variant="outline-dark" size="sm" onClick={onShare}><i className="bi bi-box-arrow-up me-1" />{t('ppShare')}</Button>
+          <span className="pp-avatar" aria-hidden="true">{(nickname || '🗿').slice(0, 1).toUpperCase()}</span>
+        </div>
+      </div>
+
+      <Form.Control className="mb-3" style={{ maxWidth: 320 }} placeholder={t('nickname')} value={nickname} onChange={(e) => setNickname(e.target.value)} />
+
+      <ButtonGroup className="mb-4">
+        {[['cover', 'ppCover', 'journal-bookmark'], ['stamps', 'ppStamps', 'patch-check'], ['map', 'ppMap', 'map']].map(([k, label, icon]) => (
+          <Button key={k} variant={view === k ? 'dark' : 'outline-dark'} onClick={() => setView(k)} aria-pressed={view === k}>
+            <i className={`bi bi-${icon} me-1`} />{t(label)}
+          </Button>
+        ))}
+      </ButtonGroup>
+
+      {view === 'cover' && (
+        <div className="mb-4 text-center">
+          <PassportCover color={coverColor} stamps={stamps} names={names} nickname={nickname} />
+          <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+            <span className="small text-muted">{t('ppCoverColor')}</span>
+            {Object.entries(COVERS).map(([k, c]) => (
+              <button key={k} type="button" className={`cover-swatch ${coverColor === k ? 'on' : ''}`} style={{ background: c.bg }}
+                aria-label={`${t('ppCoverColor')}: ${k}`} aria-pressed={coverColor === k} onClick={() => setCoverColor(k)} />
+            ))}
+          </div>
+          <Link to="/stories" className="btn btn-primary btn-lg mt-3"><i className="bi bi-plus-lg me-1" />{t('ppGoStamp')}</Link>
+        </div>
+      )}
+
+      {view === 'stamps' && (
+        <Card className="mb-4"><Card.Body>
+          <Row xs={3} sm={4} md={5} className="g-4 justify-content-center">
+            {(stories.length ? stories : []).map((s) => {
+              const st = stamps.find((x) => x.spotId === s.id)
+              return (
+                <Col key={s.id} className="d-flex flex-column align-items-center gap-1 text-center">
+                  {st
+                    ? <StampMark label={s.name} date={st.at.slice(5, 10)} />
+                    : <Link to="/stories" className="stamp-empty" title={t('ppLocked')}><i className="bi bi-lock" /></Link>}
+                  {!st && <span className="small text-muted">{s.name}</span>}
+                </Col>
+              )
+            })}
+          </Row>
+        </Card.Body></Card>
+      )}
+
+      {view === 'map' && <Card className="mb-4"><Card.Body><PassportMap stories={stories} stamped={stamped} /></Card.Body></Card>}
 
       <h5 className="fw-bold mb-3"><i className="bi bi-award text-primary me-2" />{t('badges')}</h5>
-      <Row xs={2} md={4} className="g-3 mb-4">
+      <Row xs={2} md={4} className="g-3 mb-3">
         {badges.map((b) => (
           <Col key={b.key}>
             <Card className="h-100 text-center" style={b.on ? undefined : { opacity: 0.4, filter: 'grayscale(1)' }}>
@@ -44,20 +112,8 @@ export default function Passport() {
         ))}
       </Row>
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="fw-bold mb-0">{t('progress')} · {stamps.length}</h5>
-        {stamps.length > 0 && (
-          <button className="btn btn-link btn-sm text-muted" onClick={resetStamps}><i className="bi bi-trash me-1" />{t('reset')}</button>
-        )}
-      </div>
-      {stamps.length === 0 ? <Empty text={t('noStamps')} /> : (
-        <Card><Card.Body>
-          <Row xs={3} sm={4} md={5} className="g-4 justify-content-center">
-            {stamps.map((s) => (
-              <Col key={s.spotId} className="d-flex justify-content-center"><StampMark label={names[s.spotId] ?? s.name} date={s.at.slice(5, 10)} /></Col>
-            ))}
-          </Row>
-        </Card.Body></Card>
+      {stamps.length > 0 && (
+        <button className="btn btn-link btn-sm text-muted" onClick={resetStamps}><i className="bi bi-trash me-1" />{t('reset')}</button>
       )}
     </>
   )
