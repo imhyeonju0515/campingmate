@@ -1,0 +1,31 @@
+import { Link } from 'react-router-dom'
+import { Badge, Card } from 'react-bootstrap'
+import { useT } from '../i18n'
+
+const FIT_BG = { good: 'success', caution: 'warning', avoid: 'danger' }
+const TYPE_KEY = { normal: 't_normal', car: 't_car', glamp: 't_glamp', caravan: 't_caravan' }
+
+// 캠핑장 한 칸 — 목록·홈 추천에서 재사용. fit: 'good' | 'caution' | 'avoid' (오늘 바람 기준, 없으면 표시 안 함)
+export default function CampCard({ camp, fit }) {
+  const t = useT()
+  return (
+    <Card as={Link} to={`/camps/${encodeURIComponent(camp.id)}`} className="h-100 camp-card text-decoration-none text-body">
+      {camp.image && <Card.Img variant="top" src={camp.image} alt="" loading="lazy" style={{ height: 150, objectFit: 'cover' }} />}
+      <Card.Body className="d-flex flex-column">
+        <div className="d-flex justify-content-between mb-2">
+          <Badge bg="info">{camp.region}</Badge>
+          {fit && <Badge bg={FIT_BG[fit]}>{t(`fit_${fit}`)}</Badge>}
+        </div>
+        <Card.Title className="fw-bold fs-6">{camp.name}</Card.Title>
+        <div className="mb-2 d-flex flex-wrap gap-1">
+          {camp.types.map((x) => <Badge key={x} bg="light" text="dark">{t(TYPE_KEY[x])}</Badge>)}
+          {camp.pet && <Badge bg="light" text="dark"><i className="bi bi-heart-fill text-danger me-1" />{t('pet')}</Badge>}
+        </div>
+        <Card.Text className="small text-muted flex-grow-1">{camp.intro}</Card.Text>
+        {camp.stories?.length > 0 && (
+          <div className="small"><i className="bi bi-signpost-2 text-primary me-1" />{camp.stories.map((s) => `${s.name} ${s.km}km`).join(' · ')}</div>
+        )}
+      </Card.Body>
+    </Card>
+  )
+}

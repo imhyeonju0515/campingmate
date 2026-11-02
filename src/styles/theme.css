@@ -1,0 +1,52 @@
+/* Bootswatch(united) 위에 얹는 최소한의 추가 스타일 — 색은 Bootstrap 변수를 그대로 씁니다 */
+body {
+  background-color: #f6efe2;
+  background-image: radial-gradient(rgb(0 0 0 / 0.045) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+main { padding-bottom: 5.5rem; }
+@media (min-width: 768px) { main { padding-bottom: 2rem; } }
+
+/* 여권 페이지 같은 카드 */
+.card { background: #fffaf0; border-color: #e9dfca; }
+.camp-card { transition: transform .15s, box-shadow .15s; }
+.camp-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgb(60 40 10 / .15); }
+
+/* 도장 */
+.stamp-mark {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+  border: 3px double var(--bs-primary); border-radius: 50%; color: var(--bs-primary);
+  text-align: center; transform: rotate(-8deg); line-height: 1.15; font-weight: 800;
+}
+@keyframes stamp-pop {
+  0%   { transform: scale(2.4) rotate(-22deg); opacity: 0; }
+  55%  { transform: scale(0.9) rotate(-8deg);  opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg);    opacity: .95; }
+}
+.stamp-pop { animation: stamp-pop .45s cubic-bezier(.2,.9,.3,1.2) both; }
+
+/* 하르방 살랑살랑 */
+@keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+.wobble { animation: wobble 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* 말풍선 */
+.bubble { position: relative; background: #ffe8d9; color: var(--bs-primary); border-radius: 1rem; padding: .6rem 1rem; font-weight: 600; font-size: .9rem; }
+.bubble::before { content: ""; position: absolute; left: -8px; top: 16px; border: 8px solid transparent; border-right-color: #ffe8d9; border-left: 0; }
+@media (max-width: 767.98px) { .bubble::before { display: none; } }
+
+/* 코스 점선 길 */
+.trail { border-left: 2px dashed var(--bs-primary); margin-left: 1rem; padding-left: 1.75rem; list-style: none; }
+.trail > li { position: relative; }
+.trail-num { position: absolute; left: -2.55rem; top: 1rem; width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: #212529; color: #fff; font-size: .75rem; font-weight: 700; display: grid; place-items: center; }
+
+/* 채팅 */
+.chat-box { height: 52vh; overflow-y: auto; }
+.msg { max-width: 85%; border-radius: 1rem; padding: .55rem .9rem; font-size: .92rem; white-space: pre-wrap; }
+.msg.user { align-self: flex-end; background: #212529; color: #fff; }
+.msg.assistant { align-self: flex-start; background: #ffe8d9; }
+
+/* 모바일 하단 탭바 */
+.bottom-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; background: #fffaf0; border-top: 1px solid #e9dfca; }
+.bottom-tabs .nav-link { font-size: .65rem; padding: .3rem .15rem; white-space: nowrap; color: #495057; }
+.bottom-tabs .nav-link.active { color: var(--bs-primary); font-weight: 700; }
