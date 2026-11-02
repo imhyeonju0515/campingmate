@@ -21,7 +21,7 @@ export default function CampCard({ camp, fit }) {
           {camp.types.map((x) => <Badge key={x} bg="light" text="dark">{t(TYPE_KEY[x])}</Badge>)}
           {camp.pet && <Badge bg="light" text="dark"><i className="bi bi-heart-fill text-danger me-1" />{t('pet')}</Badge>}
         </div>
-        <Card.Text className="small text-muted flex-grow-1">{camp.intro}</Card.Text>
+        <Card.Text className="small text-muted flex-grow-1">{camp.intro || camp.addr}</Card.Text>
         {camp.stories?.length > 0 && (
           <div className="small"><i className="bi bi-signpost-2 text-primary me-1" />{camp.stories.map((s) => `${s.name} ${s.km}km`).join(' · ')}</div>
         )}

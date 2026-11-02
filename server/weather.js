@@ -36,7 +36,12 @@ export async function getWeather({ place = '제주시' } = {}) {
     const key = `${it.fcstDate} ${it.fcstTime}`;
     (slots[key] ??= {})[it.category] = it.fcstValue;
   }
-  return Object.entries(slots).slice(0, 6).map(([time, v]) => ({
+  // 이미 지난 시간대는 빼고 "지금 이후" 예보부터 6칸 (발표 시각 기준 첫 칸은 몇 시간 전일 수 있음)
+  const k = new Date(Date.now() + 9 * 3600e3).toISOString()
+  const nowKey = `${k.slice(0, 10).replaceAll('-', '')} ${k.slice(11, 13)}00`
+  const all = Object.entries(slots)
+  const upcoming = all.filter(([time]) => time >= nowKey)
+  return (upcoming.length ? upcoming : all).slice(0, 6).map(([time, v]) => ({
     place, time, temp: Number(v.TMP), sky: SKY[v.SKY] ?? v.SKY,
     rain: PTY[v.PTY] ?? v.PTY, pop: Number(v.POP),
     wind: Number(v.WSD),                                                   // 풍속 m/s

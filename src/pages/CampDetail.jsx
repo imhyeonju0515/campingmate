@@ -53,7 +53,7 @@ export default function CampDetail() {
             <span className="small text-muted">{camp.source === 'gocamping' ? t('live') : t('sample')}</span>
           </div>
           <h1 className="fw-bold h2">{camp.name}</h1>
-          <p className="text-muted mb-1">{camp.intro}</p>
+          {camp.intro && <p className="text-muted mb-1">{camp.intro}</p>}
           {camp.addr && <div className="small"><i className="bi bi-geo-alt me-1" />{camp.addr}</div>}
           {camp.tel && <div className="small"><i className="bi bi-telephone me-1" />{t('tel')} {camp.tel}</div>}
         </Card.Body>
