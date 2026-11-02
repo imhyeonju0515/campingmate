@@ -90,6 +90,11 @@ export default function CampDetail() {
                   <div className="min-w-0">
                     <div className="fw-bold">{o.name}</div>
                     <div className="small"><i className="bi bi-geo-alt-fill text-primary" /> {o.km} km</div>
+                    <div className="d-flex flex-wrap gap-1 my-1">
+                      <Badge bg="light" text="dark">{t('oreumEle')} {o.elevation} m</Badge>
+                      <Badge bg="light" text="dark">{t('oreumRel')} {o.relHeight} m</Badge>
+                    </div>
+                    {o.desc && <div className="small text-muted mb-1">{o.desc}</div>}
                     <div className="small"><AddressLink addr={o.addr} ko={o.addrKo} /></div>
                   </div>
                 </Card.Body></Card>

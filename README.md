@@ -50,6 +50,7 @@ data.go.kr 에서 활용 신청하고 **같은 Decoding 키 1개**(`DATA_GO_KR_K
 | 4 | 에어코리아 대기오염정보 (`getCtprvnRltmMesureDnsty`) | 미세먼지(PM10·PM2.5) | `server/air.js` |
 | 5 | 한국천문연구원 출몰시각 (`RiseSetInfoService`) | 일몰 시각 | `server/sun.js` |
 | 6 | 국가유산청 국가유산 검색 (키 불필요) | 이야기 카드의 국가유산 표시 | `server/heritage.js` |
+| 7 | **제주특별자치도 제주오름요약설명** (파일데이터 CSV, 기준일 2021-11-30) | 오름 90곳의 이름·위치·표고·비고(오름 높이)·좌표·설명 → 캠핑장 상세의 "근처 오름", AI 코스 도구 | `server/oreums.js`, `scripts/build-oreums.mjs` |
 
 - 바람 등급은 경험칙입니다(4m/s 미만 잔잔 · 4~7 산들바람 · 7~10 강풍 주의 · 10 이상 텐트 위험). **공식 안전 기준이 아닙니다** (`server/wind.js`).
 - 공공데이터에는 하루 요청 제한이 있어 `server/cache.js` 로 잠깐 기억해 두고 씁니다. 한도를 넘으면 화면에 "측정값 없음"처럼 표시됩니다.

@@ -1,36 +1,41 @@
-// 제주 오름 목록 — 한국관광공사 TourAPI(국문 관광정보 searchKeyword2, 관광지 유형)에서 "오름"으로 모읍니다.
-// 이야기 스팟(오름·화산·신화 9곳)은 직접 쓴 이야기 카드이고, 이 목록은 그보다 훨씬 많은 오름의 이름·위치·사진·주소를 공공데이터로 채웁니다.
-// ※ 외국어판 TourAPI 에는 오름이 거의 없어서(영어 7개 등), 외국어 화면의 이름은 한글 이름을 로마자로 옮겨 씁니다.
-import romanizePkg from '@romanize/korean';
+// 제주 오름 90개 — 제주특별자치도 "제주오름요약설명"(공공데이터포털 15096996, 기준일 2021-11-30)이 기본 자료입니다.
+// 이름·위치·표고·비고(오름 자체 높이)·좌표·설명은 그 CSV(server/data/source → scripts/build-oreums.mjs → oreums.json)에서,
+// 사진과 자세한 주소는 한국관광공사 TourAPI 관광지 목록에서 이름이 같은 것을 찾아 붙입니다(없으면 사진 없음).
+// 설명은 한국어뿐이라 외국어 화면에는 숫자(표고·비고)와 위치만 보여 줍니다. 오름 소요시간·난이도는 이 자료에 없습니다.
 import { cached } from './cache.js';
 import { localizeAddr } from './addr.js';
-const { romanize } = romanizePkg;
+import BASE from './data/oreums.json' with { type: 'json' };   // 정적 import 라서 Vercel 이 함수에 파일을 확실히 포함시킴
 
-const URL = 'https://apis.data.go.kr/B551011/KorService2/searchKeyword2';
-
-async function fetchOreums() {
-  if (!process.env.DATA_GO_KR_KEY) return [];
-  const params = new URLSearchParams({
-    serviceKey: process.env.DATA_GO_KR_KEY, MobileOS: 'ETC', MobileApp: 'HarubangWindCamp', _type: 'json',
-    keyword: '오름', contentTypeId: '12', numOfRows: '100', pageNo: '1',
-  });
-  const r = await fetch(`${URL}?${params}`);
-  const item = JSON.parse(await r.text())?.response?.body?.items?.item ?? [];
-  return (Array.isArray(item) ? item : [item])
-    .filter((p) => /제주/.test(p.addr1 ?? '') && /오름/.test(p.title ?? '') && Number.isFinite(Number(p.mapx)) && Number.isFinite(Number(p.mapy)))
-    .map((p) => ({ id: String(p.contentid), title: p.title, addr: p.addr1, lat: Number(p.mapy), lng: Number(p.mapx), image: p.firstimage || null }));
+// TourAPI 목록에서 사진·주소 가져오기 (실패하면 빈 목록 — 그래도 오름 정보는 나옴)
+async function fetchTourImages() {
+  if (!process.env.DATA_GO_KR_KEY) return new Map();
+  try {
+    const params = new URLSearchParams({
+      serviceKey: process.env.DATA_GO_KR_KEY, MobileOS: 'ETC', MobileApp: 'HarubangWindCamp', _type: 'json',
+      keyword: '오름', contentTypeId: '12', numOfRows: '100', pageNo: '1',
+    });
+    const r = await fetch(`https://apis.data.go.kr/B551011/KorService2/searchKeyword2?${params}`);
+    const item = JSON.parse(await r.text())?.response?.body?.items?.item ?? [];
+    return new Map((Array.isArray(item) ? item : [item]).filter((p) => /제주/.test(p.addr1 ?? '')).map((p) => [key(p.title), { image: p.firstimage || null, addr: p.addr1 }]));
+  } catch { return new Map(); }
 }
+// 이름 비교용: 괄호 속 다른 이름·"오름"·공백을 뺀 것
+const key = (s = '') => s.replace(/\s*[(（].*$/, '').replace(/오름/g, '').replace(/\s+/g, '');
 
-// 24시간 기억 (목록이 거의 안 바뀌고, 하루 요청 한도 때문)
-export const getOreums = () => cached('oreums', 24 * 3600e3, fetchOreums);
+// 24시간 기억 (하루 요청 한도 때문)
+export const getOreums = () => cached('oreums', 24 * 3600e3, async () => {
+  const tour = await fetchTourImages();
+  return BASE.map((o) => {
+    const t = tour.get(key(o.ko));
+    return { ...o, image: t?.image ?? null, addr: t?.addr ?? `제주특별자치도 ${o.loc}` };
+  });
+});
 
-const HANGUL = /[가-힣]/g;
-// "가문이오름(감은이오름)" → ko: 그대로 / 그 밖: "Gamuni Oreum" (괄호 속 다른 이름은 뺌, 글자 하나씩 로마자)
-export function oreumName(title, lang) {
-  if (lang === 'ko') return title;
-  const main = title.replace(/\s*[(（].*$/, '').replace(/오름$/, ' 오름').trim();
-  return main.replace(/[가-힣]+/g, (m) => ` ${m.split('').map((c) => romanize(c)).join('').replace(/^./, (x) => x.toUpperCase())} `)
-    .replace(/\s+/g, ' ').replace(/\bOreum\b|\bOrm\b|\bOreu?m\b/g, 'Oreum').trim();
+// "abu" → "Abu Oreum" (CSV 의 영문명에 오름 글자가 없으면 붙임)
+export function oreumName(o, lang) {
+  if (lang === 'ko') return o.ko;
+  const en = o.en.replace(/^./, (c) => c.toUpperCase());
+  return o.ko.endsWith('오름') && !/oreum$/i.test(en) ? `${en} Oreum` : en;
 }
 
 const rad = (d) => (d * Math.PI) / 180;
@@ -44,7 +49,9 @@ export async function oreumsNear(lat, lng, lang = 'ko', n = 5) {
     .map((o) => ({ o, km: distKm(lat, lng, o.lat, o.lng) }))
     .sort((a, b) => a.km - b.km).slice(0, n)
     .map(({ o, km }) => ({
-      id: o.id, name: oreumName(o.title, lang), km: Math.round(km * 10) / 10, image: o.image,
+      id: o.id, name: oreumName(o, lang), km: Math.round(km * 10) / 10, image: o.image,
+      elevation: o.ele, relHeight: o.rel,                 // 표고(m) · 비고(오름 자체 높이, m)
+      desc: lang === 'ko' ? o.desc : undefined,           // 설명은 한국어뿐
       addr: localizeAddr(o.addr, lang), addrKo: lang === 'ko' ? undefined : o.addr,
     }));
 }

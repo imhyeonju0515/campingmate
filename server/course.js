@@ -16,7 +16,7 @@ export async function getCourse({ campId, lang = 'ko' } = {}) {
   return {
     camp: { id: camp.id, name: camp.name, region: camp.region, types: camp.types, tel: camp.tel, resveUrl: camp.resveUrl, reserve: camp.reserve },
     spots: stories.map((s) => ({ id: s.id, name: s.name, tag: s.tag, km: s.km, story: s.story })),   // 가까운 순, km 는 직선거리
-    moreOreums: (oreums ?? []).slice(0, 4).map((o) => ({ name: o.name, km: o.km })),   // 공공데이터 오름 목록(이름·직선거리만). 글에서 이름만 언급하고 링크·id 는 없음
+    moreOreums: (oreums ?? []).slice(0, 4).map((o) => ({ name: o.name, km: o.km, elevation: o.elevation, relHeight: o.relHeight, desc: o.desc })),   // 공공데이터 오름 90곳(이름·직선거리·표고·비고·설명). 글에서 언급만 하고 링크·id 는 없음
     sun: { [today]: ok(sunToday), [tomorrow]: ok(sunTomorrow) },
     forecast: (ok(forecast) ?? []).slice(0, 2).map((d) => ({ date: d.date, windMax: d.windMax, dir: d.dir, popMax: d.popMax, rain: d.rain, tempMin: d.tempMin, tempMax: d.tempMax })),
     note: '거리는 직선거리. 이동·등반 소요 시간 데이터는 없음.',
