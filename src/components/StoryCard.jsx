@@ -3,7 +3,7 @@ import { Badge, Button, Card, Col, Row } from 'react-bootstrap'
 import StampMark from './StampMark'
 import StoryModal from './StoryModal'
 import { fetchHeritage } from '../api/client'
-import { distKm, getPosition, STAMP_RADIUS_KM } from '../lib/geo'
+import { useStamp } from '../lib/useStamp'
 import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
@@ -14,35 +14,14 @@ export default function StoryCard({ story, campId }) {
   const t = useT()
   const area = useArea()
   const lang = useAppStore((s) => s.lang)
-  const stamp = useAppStore((s) => s.stamps.find((x) => x.spotId === story.id))
-  const stampSpot = useAppStore((s) => s.stampSpot)
-  const toast = useAppStore((s) => s.toast)
+  const { stamp, onStamp, locating, fresh } = useStamp(story, campId)
   const [heritage, setHeritage] = useState([])
-  const [fresh, setFresh] = useState(false)
-  const [locating, setLocating] = useState(false)
   const [open, setOpen] = useState(false)
 
   // 키워드가 있는 스팟은 국가유산청에서 관련 유산을 찾아 붙입니다 (실패해도 무시)
   useEffect(() => {
     if (story.keyword) fetchHeritage(story.keyword, lang).then((l) => setHeritage(l.slice(0, 3))).catch(() => {})
   }, [story.keyword, lang])
-
-  // 도장은 이 스팟 1km 안에서만 찍힙니다 (브라우저 위치 기준 — 서버가 검증하는 것은 아니라서 진짜 부정 방지는 아님)
-  async function onStamp() {
-    setLocating(true)
-    try {
-      const me = await getPosition()
-      const km = distKm(me.lat, me.lng, story.lat, story.lng)
-      if (km > STAMP_RADIUS_KM) return toast(`${t('stampTooFar')} (${km.toFixed(1)} km)`, 'warning')
-      await stampSpot({ spotId: story.id, name: story.name, tag: story.tag, campId })
-      setFresh(true)
-      toast(t('stampSay'))
-    } catch (e) {
-      toast(t({ unsupported: 'stampNoGeo', denied: 'stampDenied' }[e.code] ?? 'stampUnavail'), 'warning')
-    } finally {
-      setLocating(false)
-    }
-  }
 
   // 모달은 카드 "밖"(형제)에 둡니다. 안에 두면 모달 안 클릭이 React 트리를 타고 카드의 onClick 까지 올라가서
   // 닫기를 눌러도 곧바로 다시 열려 버립니다.

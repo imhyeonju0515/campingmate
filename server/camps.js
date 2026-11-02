@@ -71,7 +71,7 @@ function distKm(aLat, aLng, bLat, bLng) {
 }
 
 const shapeStory = (s, lang, km) => ({
-  id: s.id, area: s.area, tag: s.tag, lat: s.lat, lng: s.lng, keyword: s.keyword,
+  id: s.id, order: s.order, area: s.area, tag: s.tag, lat: s.lat, lng: s.lng, keyword: s.keyword,
   name: pick(s.name, lang), story: pick(s.story, lang), ...(km != null && { km }),
 });
 
