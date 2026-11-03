@@ -35,14 +35,17 @@ export default function OreumCard({ oreum: o }) {
             </Col>
             <Col xs={12} sm="auto" className="d-flex flex-column justify-content-center gap-2" onClick={(e) => e.stopPropagation()}>
               {o.image && (
-                <img src={o.image} alt={o.name} loading="lazy" className="rounded" style={{ width: '100%', maxWidth: 140, height: 110, objectFit: 'cover', border: '2px solid #000' }} />
+                <img src={o.image} alt={o.name} className="rounded" style={{ width: '100%', maxWidth: 140, height: 110, objectFit: 'cover', border: '2px solid #000' }} />
               )}
               {stamp
                 ? <StampMark label={o.name} date={stamp.at.slice(5, 10)} animate={fresh} />
                 : (
-                  <Button size="sm" onClick={onStamp} disabled={locating}>
-                    <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
-                  </Button>
+                  <div className="text-center">
+                    <Button size="sm" onClick={onStamp} disabled={locating} className="w-100">
+                      <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
+                    </Button>
+                    <div className="small text-muted mt-1" style={{ maxWidth: 150, fontSize: '0.7rem' }}>{t('stampNote')}</div>
+                  </div>
                 )}
             </Col>
           </Row>
