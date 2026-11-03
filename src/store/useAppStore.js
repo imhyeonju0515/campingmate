@@ -72,12 +72,47 @@ export const useAppStore = create(
         setTimeout(() => set({ toasts: get().toasts.filter((t) => t.id !== id) }), 2500)
       },
 
-      // ③ 이야기 도장 — localStorage 에 저장하고, Supabase 가 설정돼 있으면 stamps 테이블에도 기록
-      stamps: [],                      // { spotId, name, tag, campId, at }
-      hasStamp: (spotId) => get().stamps.some((s) => s.spotId === spotId),
+      // ③ 도장 시스템 — 단일/다중 패스포트 지원
+      stamps: [],                      // { spotId, name, tag, campId, at } — 호환성 유지
+      passports: [],                   // [{ id, createdAt, stamps[], coverColor, nickname }]
+      currentPassportId: null,         // 현재 활성 패스포트 ID
+
+      // 현재 활성 패스포트 꺼내기
+      getCurrentPassport: () => {
+        const { passports, currentPassportId } = get()
+        return passports.find((p) => p.id === currentPassportId) || null
+      },
+
+      // 현재 도장 목록 얻기
+      getCurrentStamps: () => {
+        const cp = get().getCurrentPassport()
+        return cp?.stamps || get().stamps
+      },
+
+      hasStamp: (spotId) => {
+        return get().getCurrentStamps().some((s) => s.spotId === spotId)
+      },
+
       stampSpot: async ({ spotId, name, tag, campId }) => {
         if (get().hasStamp(spotId)) return
-        set({ stamps: [...get().stamps, { spotId, name, tag, campId: campId ?? null, at: new Date().toISOString() }] })
+        const cp = get().getCurrentPassport()
+        const newStamp = { spotId, name, tag, campId: campId ?? null, at: new Date().toISOString() }
+
+        if (cp) {
+          // 패스포트 안에 도장 추가
+          const newStamps = [...cp.stamps, newStamp]
+          set({
+            passports: get().passports.map((p) => p.id === cp.id ? { ...p, stamps: newStamps } : p),
+          })
+          // 7개 이상이면 새 패스포트 자동 생성
+          if (newStamps.length >= 7) {
+            get().createNewPassport()
+            get().toast('도장 쾅! 🎉 패스포트가 가득 찼어요! 새 패스포트를 만들 수 있어요', 'success')
+          }
+        } else {
+          // 패스포트 없으면 스탬프 배열에 추가 (호환성)
+          set({ stamps: [...get().stamps, newStamp] })
+        }
         if (supabase) {
           const { error } = await supabase.from('stamps').insert({
             nickname: get().nickname || '익명', spot_id: spotId, spot_name: name, camp_id: campId ?? null,
@@ -85,7 +120,45 @@ export const useAppStore = create(
           if (error) get().toast(error.message, 'warning')
         }
       },
-      resetStamps: () => set({ stamps: [] }),
+
+      // 새 패스포트 생성
+      createNewPassport: () => {
+        const newPassport = {
+          id: `pp-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          stamps: [],
+          coverColor: get().coverColor,
+          nickname: get().nickname,
+        }
+        set({
+          passports: [...get().passports, newPassport],
+          currentPassportId: newPassport.id,
+        })
+      },
+
+      // 패스포트 전환
+      switchPassport: (passportId) => set({ currentPassportId: passportId }),
+
+      // 초기화: 현재 패스포트/도장만 초기화
+      resetStamps: () => {
+        const cp = get().getCurrentPassport()
+        if (cp) {
+          set({
+            passports: get().passports.map((p) => p.id === cp.id ? { ...p, stamps: [] } : p),
+          })
+        } else {
+          set({ stamps: [] })
+        }
+      },
+
+      // 패스포트 삭제
+      deletePassport: (passportId) => {
+        set({ passports: get().passports.filter((p) => p.id !== passportId) })
+        if (get().currentPassportId === passportId) {
+          const remaining = get().passports
+          set({ currentPassportId: remaining.length > 0 ? remaining[0].id : null })
+        }
+      },
 
       // ④ 에이전트 대화 — 페이지를 옮겨도 대화가 남도록 store 에 둡니다
       messages: [],          // { role: 'user' | 'assistant', text, camps, steps }
@@ -106,7 +179,7 @@ export const useAppStore = create(
     }),
     {
       name: 'harubang-windcamp-store',                                // localStorage 키 이름
-      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps, favorites: s.favorites, coverColor: s.coverColor }),
+      partialize: (s) => ({ nickname: s.nickname, lang: s.lang, stamps: s.stamps, favorites: s.favorites, coverColor: s.coverColor, passports: s.passports, currentPassportId: s.currentPassportId }),
     },
   ),
 )

@@ -11,10 +11,12 @@ import { useAppStore } from '../store/useAppStore'
 // 내 패스포트 — 표지 / 도장 / 지도 세 가지 보기. 표지 색은 고를 수 있고 브라우저에 저장됩니다.
 export default function Passport() {
   const t = useT()
-  const { nickname, setNickname, stamps, resetStamps, coverColor, setCoverColor, toast } = useAppStore()
+  const { nickname, setNickname, coverColor, setCoverColor, toast, passports, currentPassportId, switchPassport, createNewPassport, deletePassport, resetStamps, getCurrentStamps } = useAppStore()
   const lang = useAppStore((s) => s.lang)
   const [stories, setStories] = useState([])
-  const [view, setView] = useState('cover')   // 'cover' | 'stamps' | 'map'
+  const [view, setView] = useState('cover')   // 'cover' | 'stamps' | 'map' | 'archive'
+
+  const stamps = getCurrentStamps()
 
   useEffect(() => {
     fetchStories(lang).then(setStories).catch(() => {})
@@ -57,7 +59,7 @@ export default function Passport() {
       <Form.Control className="mb-3" style={{ maxWidth: 320 }} placeholder={t('nickname')} value={nickname} onChange={(e) => setNickname(e.target.value)} />
 
       <ButtonGroup className="mb-4">
-        {[['cover', 'ppCover', 'journal-bookmark'], ['stamps', 'ppStamps', 'patch-check'], ['map', 'ppMap', 'map']].map(([k, label, icon]) => (
+        {[['cover', 'ppCover', 'journal-bookmark'], ['stamps', 'ppStamps', 'patch-check'], ['map', 'ppMap', 'map'], ...(passports.length > 0 ? [['archive', 'ppArchive', 'archive']] : [])].map(([k, label, icon]) => (
           <Button key={k} variant={view === k ? 'dark' : 'outline-dark'} onClick={() => setView(k)} aria-pressed={view === k}>
             <i className={`bi bi-${icon} me-1`} />{t(label)}
           </Button>
@@ -97,6 +99,65 @@ export default function Passport() {
       )}
 
       {view === 'map' && <Card className="mb-4"><Card.Body><PassportMap stories={stories} stamped={stamped} /></Card.Body></Card>}
+
+      {view === 'archive' && (
+        <>
+          <h5 className="fw-bold mb-3"><i className="bi bi-archive me-2" />{t('ppArchive')}</h5>
+          {passports.length === 0 ? (
+            <div className="text-center text-muted mb-4">
+              <p>{t('ppNoArchive')}</p>
+            </div>
+          ) : (
+            <Row xs={1} md={2} className="g-3 mb-4">
+              {passports.map((pp, idx) => {
+                const createdDate = new Date(pp.createdAt)
+                const isActive = pp.id === currentPassportId
+                return (
+                  <Col key={pp.id}>
+                    <Card className={`h-100 ${isActive ? 'border-primary' : ''}`} style={isActive ? { borderWidth: 2 } : {}}>
+                      <Card.Body>
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div>
+                            <Card.Title className="fw-bold small mb-1">#{passports.length - idx}</Card.Title>
+                            <Card.Subtitle className="text-muted small">{createdDate.toLocaleDateString(lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-CN' : lang === 'en' ? 'en-US' : 'ko-KR')}</Card.Subtitle>
+                          </div>
+                          {isActive && <Badge bg="primary">{t('current')}</Badge>}
+                        </div>
+                        <div className="mb-3">
+                          <div className="fw-bold small text-muted">{t('ppSpots')}</div>
+                          <div className="fs-5">{pp.stamps.length} / {stories.length || 9}</div>
+                        </div>
+                        <div className="d-flex gap-2">
+                          {!isActive && (
+                            <Button size="sm" variant="outline-primary" onClick={() => switchPassport(pp.id)} className="flex-fill">
+                              <i className="bi bi-arrow-left me-1" />{t('switch')}
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline-danger" onClick={() => deletePassport(pp.id)} className="flex-fill">
+                            <i className="bi bi-trash me-1" />{t('delete')}
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
+              })}
+            </Row>
+          )}
+        </>
+      )}
+
+      {view === 'cover' && stamps.length >= 7 && (
+        <div className="alert alert-success d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <i className="bi bi-star-fill me-2 text-warning" />
+            <strong>{t('ppFull')}</strong>
+          </div>
+          <Button size="sm" variant="success" onClick={createNewPassport}>
+            <i className="bi bi-plus-lg me-1" />{t('ppCreateNew')}
+          </Button>
+        </div>
+      )}
 
       <h5 className="fw-bold mb-3"><i className="bi bi-award text-primary me-2" />{t('badges')}</h5>
       <Row xs={2} md={4} className="g-3 mb-3">
