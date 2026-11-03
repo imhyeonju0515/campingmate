@@ -7,6 +7,7 @@ import { localizeAddr } from './addr.js';
 import BASE from './data/oreums.json' with { type: 'json' };   // 정적 import 라서 Vercel 이 함수에 파일을 확실히 포함시킴
 
 import { DESC_TR } from './data/translations.js';
+import IMG_FALLBACK from './data/oreumImages.json' with { type: 'json' };   // 목록 검색에 안 잡힌 오름의 TourAPI 사진 (이름으로 따로 찾아 둔 것)
 
 // TourAPI 목록에서 사진·주소 가져오기 (실패하면 빈 목록 — 그래도 오름 정보는 나옴)
 async function fetchTourImages() {
@@ -32,7 +33,7 @@ export const getOreums = () => cached('oreums', 24 * 3600e3, async () => {
     return {
       ...o,
       name: { ko: o.ko, en: (o.en.replace(/^./, (c) => c.toUpperCase()) + (o.ko.endsWith('오름') && !/oreum$/i.test(o.en) ? ' Oreum' : '')).trim() },
-      image: t?.image ?? null,
+      image: t?.image ?? IMG_FALLBACK[o.id] ?? null,
       addr: t?.addr ?? `제주특별자치도 ${o.loc}`
     };
   });

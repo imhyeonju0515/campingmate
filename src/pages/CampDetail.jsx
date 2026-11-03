@@ -8,6 +8,7 @@ import ForecastStrip from '../components/ForecastStrip'
 import FavButton from '../components/FavButton'
 import AddressLink from '../components/AddressLink'
 import StampMark from '../components/StampMark'
+import OreumPhoto from '../components/OreumPhoto'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
@@ -20,23 +21,28 @@ const TYPE_KEY = { normal: 't_normal', car: 't_car', glamp: 't_glamp', caravan: 
 
 // 오름 + 도장찍기 카드
 function OreumStampCard({ oreum, t }) {
+  const area = useArea()
   const { stamp, onStamp, locating, fresh } = useStamp(oreum, null)
 
   return (
-    <Card style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <Card.Body className="d-flex flex-column gap-3 p-3" style={{ flex: 1 }}>
-        {oreum.image && <img src={oreum.image} alt={oreum.name} loading="lazy" className="rounded" style={{ height: 120, objectFit: 'cover', border: '2px solid #000', width: '100%' }} />}
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <div className="fw-bold mb-1">{oreum.name}</div>
-          <div className="small mb-2"><i className="bi bi-geo-alt-fill text-primary me-1" />{oreum.km} km</div>
-          <div className="d-flex flex-wrap gap-1 mb-2">
-            <Badge bg="light" text="dark" className="small">{t('oreumEle')} {oreum.elevation} m</Badge>
-            <Badge bg="light" text="dark" className="small">{t('oreumRel')} {oreum.relHeight} m</Badge>
+    <Card className="h-100">
+      <Card.Body className="d-flex flex-column p-3">
+        <div className="flex-grow-1">
+          <div className="mb-2"><OreumPhoto src={oreum.image} alt={oreum.name} elevation={oreum.elevation} /></div>
+          <div className="d-flex flex-wrap gap-1 mb-1">
+            <Badge bg="success">{t('tag_oreum')}</Badge>
+            <Badge bg="light" text="dark">{area(oreum.area)}</Badge>
+            <Badge bg="light" text="dark"><i className="bi bi-geo-alt me-1" />{oreum.km} km</Badge>
           </div>
-          {oreum.desc && <div className="small text-muted" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{oreum.desc}</div>}
-          <div className="small mt-2"><AddressLink addr={oreum.addr} ko={oreum.addrKo} /></div>
+          <Card.Title className="fw-bold">{oreum.name}</Card.Title>
+          <div className="d-flex flex-wrap gap-1 mb-1">
+            <Badge bg="light" text="dark">{t('oreumEle')} {oreum.elevation} m</Badge>
+            <Badge bg="light" text="dark">{t('oreumRel')} {oreum.relHeight} m</Badge>
+          </div>
+          {oreum.desc && <Card.Text className="small mb-1">{oreum.desc}</Card.Text>}
+          <div className="small"><AddressLink addr={oreum.addr} ko={oreum.addrKo} /></div>
         </div>
-        <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '12px', marginTop: '12px' }}>
+        <div className="mt-3" style={{ borderTop: '1px solid #dee2e6', paddingTop: 12 }}>
           {stamp
             ? <StampMark label={oreum.name} date={stamp.at.slice(5, 10)} animate={fresh} />
             : (
