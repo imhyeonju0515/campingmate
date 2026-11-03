@@ -16,7 +16,7 @@ async function fetchTourImages() {
     });
     const r = await fetch(`https://apis.data.go.kr/B551011/KorService2/searchKeyword2?${params}`);
     const item = JSON.parse(await r.text())?.response?.body?.items?.item ?? [];
-    return new Map((Array.isArray(item) ? item : [item]).filter((p) => /제주/.test(p.addr1 ?? '')).map((p) => [key(p.title), { image: p.firstimage || null, addr: p.addr1 }]));
+    return new Map((Array.isArray(item) ? item : [item]).filter((p) => /제주/.test(p.addr1 ?? '')).map((p) => [key(p.title), { image: p.firstimage || null, addr: [p.addr1, p.addr2].filter(Boolean).join(' ') }]));
   } catch { return new Map(); }
 }
 // 이름 비교용: 괄호 속 다른 이름·"오름"·공백을 뺀 것
