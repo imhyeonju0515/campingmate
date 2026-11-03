@@ -1,20 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap'
+import { Badge, Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap'
 import PassportCover, { COVERS } from '../components/PassportCover'
-import PassportMap from '../components/PassportMap'
-import StampMark from '../components/StampMark'
 import { fetchStories } from '../api/client'
 import { useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
 
-// 내 패스포트 — 표지 / 도장 / 지도 세 가지 보기. 표지 색은 고를 수 있고 브라우저에 저장됩니다.
+// 내 패스포트 — 표지 / 보관함 두 가지 보기. 표지 색은 고를 수 있고 브라우저에 저장됩니다.
 export default function Passport() {
   const t = useT()
   const { nickname, setNickname, coverColor, setCoverColor, toast, passports, currentPassportId, switchPassport, createNewPassport, deletePassport, resetStamps, getCurrentStamps } = useAppStore()
   const lang = useAppStore((s) => s.lang)
   const [stories, setStories] = useState([])
-  const [view, setView] = useState('cover')   // 'cover' | 'stamps' | 'map' | 'archive'
+  const [view, setView] = useState('cover')   // 'cover' | 'archive'
 
   const stamps = getCurrentStamps()
 
@@ -22,9 +20,7 @@ export default function Passport() {
     fetchStories(lang).then(setStories).catch(() => {})
   }, [lang])
 
-  // 도장 이름은 찍을 때의 언어로 저장돼 있어서, 지금 언어의 스토리 이름으로 바꿔 보여 줍니다
   const names = useMemo(() => Object.fromEntries(stories.map((s) => [s.id, s.name])), [stories])
-  const stamped = useMemo(() => new Set(stamps.map((s) => s.spotId)), [stamps])
   const total = stories.length || 9
 
   const badges = [
@@ -59,7 +55,7 @@ export default function Passport() {
       <Form.Control className="mb-3" style={{ maxWidth: 320 }} placeholder={t('nickname')} value={nickname} onChange={(e) => setNickname(e.target.value)} />
 
       <ButtonGroup className="mb-4">
-        {[['cover', 'ppCover', 'journal-bookmark'], ['stamps', 'ppStamps', 'patch-check'], ['map', 'ppMap', 'map'], ...(passports.length > 0 ? [['archive', 'ppArchive', 'archive']] : [])].map(([k, label, icon]) => (
+        {[['cover', 'ppCover', 'journal-bookmark'], ...(passports.length > 0 ? [['archive', 'ppArchive', 'archive']] : [])].map(([k, label, icon]) => (
           <Button key={k} variant={view === k ? 'dark' : 'outline-dark'} onClick={() => setView(k)} aria-pressed={view === k}>
             <i className={`bi bi-${icon} me-1`} />{t(label)}
           </Button>
@@ -80,25 +76,6 @@ export default function Passport() {
         </div>
       )}
 
-      {view === 'stamps' && (
-        <Card className="mb-4"><Card.Body>
-          <Row xs={3} sm={4} md={5} className="g-4 justify-content-center">
-            {(stories.length ? stories : []).map((s) => {
-              const st = stamps.find((x) => x.spotId === s.id)
-              return (
-                <Col key={s.id} className="d-flex flex-column align-items-center gap-1 text-center">
-                  {st
-                    ? <StampMark label={s.name} date={st.at.slice(5, 10)} />
-                    : <Link to="/stories" className="stamp-empty" title={t('ppLocked')}><i className="bi bi-lock" /></Link>}
-                  {!st && <span className="small text-muted">{s.name}</span>}
-                </Col>
-              )
-            })}
-          </Row>
-        </Card.Body></Card>
-      )}
-
-      {view === 'map' && <Card className="mb-4"><Card.Body><PassportMap stories={stories} stamped={stamped} /></Card.Body></Card>}
 
       {view === 'archive' && (
         <>
