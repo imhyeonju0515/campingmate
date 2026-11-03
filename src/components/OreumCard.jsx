@@ -35,7 +35,7 @@ export default function OreumCard({ oreum: o }) {
             </Col>
             <Col xs={12} sm="auto" className="d-flex flex-column justify-content-center gap-2" onClick={(e) => e.stopPropagation()}>
               {o.image && (
-                <img src={o.image} alt={o.name} className="rounded" style={{ width: '100%', maxWidth: 140, height: 110, objectFit: 'cover', border: '2px solid #000' }} />
+                <img src={o.image} alt={o.name} className="rounded" style={{ width: '100%', maxWidth: 150, height: 110, objectFit: 'cover', border: '2px solid #000' }} />
               )}
               {stamp
                 ? <StampMark label={o.name} date={stamp.at.slice(5, 10)} animate={fresh} />
