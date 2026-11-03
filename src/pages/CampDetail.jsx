@@ -45,11 +45,10 @@ function OreumStampCard({ oreum, t }) {
                   onClick={onStamp}
                   disabled={locating}
                   className="btn btn-warning w-100 btn-sm"
-                  style={{ fontWeight: '500', fontSize: '14px', padding: '8px 12px' }}
                 >
                   <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
                 </button>
-                <div className="small text-muted text-center mt-2" style={{ fontSize: '0.75rem' }}>{t('stampNote')}</div>
+                <div className="small text-muted text-center mt-2" style={{ fontSize: '0.85rem' }}>{t('stampNote')}</div>
               </div>
             )}
         </div>
@@ -120,8 +119,8 @@ export default function CampDetail() {
       <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
       <div className="mb-4"><ForecastStrip place={camp.region} types={camp.types} /></div>
 
-      <h5 className="fw-bold mb-3"><i className="bi bi-triangle-fill text-primary me-2" />{t('nearOreums')} & {t('nearStories')}</h5>
-      {(oreums.length > 0 || stories.length > 0 || nearby.length > 0) ? (
+      <h5 className="fw-bold mb-3"><i className="bi bi-triangle-fill text-primary me-2" />{t('nearMyth')}</h5>
+      {(oreums.length > 0 || stories.length > 0) ? (
         <Row xs={1} sm={2} lg={3} className="g-3 mb-4">
           {oreums.map((o) => (
             <Col key={`oreum-${o.id}`}>
@@ -129,8 +128,17 @@ export default function CampDetail() {
             </Col>
           ))}
           {stories.map((s) => (
-            <Col key={`story-${s.id}`}><StoryCard story={s} campId={camp.id} /></Col>
+            <Col key={`story-${s.id}`}><StoryCard story={s} campId={camp.id} stacked /></Col>
           ))}
+        </Row>
+      ) : (
+        <div className="text-muted small mb-4">{t('noNearby')}</div>
+      )}
+
+      {nearby.length > 0 && (
+        <>
+          <h5 className="fw-bold mb-3"><i className="bi bi-shop text-primary me-2" />{t('nearFood')}</h5>
+          <Row xs={1} sm={2} lg={3} className="g-3 mb-4">
           {nearby.map((p) => (
             <Col key={`tour-${p.id}`}>
               <Card style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -144,9 +152,8 @@ export default function CampDetail() {
               </Card>
             </Col>
           ))}
-        </Row>
-      ) : (
-        <div className="text-muted small mb-4">{t('noNearby')}</div>
+          </Row>
+        </>
       )}
     </>
   )

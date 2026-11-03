@@ -10,7 +10,7 @@ import { useAppStore } from '../store/useAppStore'
 const TAG_BG = { myth: 'primary', oreum: 'success', volcano: 'danger' }
 
 // 오름·신화 이야기 카드 + 도장 찍기 (스토리 목록·캠핑장 상세에서 재사용)
-export default function StoryCard({ story, campId, defaultOpen = false }) {
+export default function StoryCard({ story, campId, defaultOpen = false, stacked = false }) {
   const t = useT()
   const area = useArea()
   const lang = useAppStore((s) => s.lang)
@@ -30,9 +30,9 @@ export default function StoryCard({ story, campId, defaultOpen = false }) {
     <StoryModal story={story} show={open} onHide={() => setOpen(false)} />
     <Card className="h-100 story-card" role="button" tabIndex={0} aria-label={`${story.name} ${t('placeMore')}`}
       onClick={() => setOpen(true)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOpen(true) } }}>
-      <Card.Body>
-        <Row className="align-items-center g-3">
-          <Col xs={12} sm>
+      <Card.Body className={stacked ? 'd-flex flex-column p-3' : ''}>
+        <Row className={stacked ? 'g-3 flex-grow-1 align-content-between' : 'align-items-center g-3'}>
+          <Col xs={12} sm={stacked ? 12 : true}>
             <div className="d-flex flex-wrap gap-1 mb-1">
               <Badge bg={TAG_BG[story.tag]}>{t(`tag_${story.tag}`)}</Badge>
               <Badge bg="light" text="dark">{area(story.area)}</Badge>
@@ -48,12 +48,12 @@ export default function StoryCard({ story, campId, defaultOpen = false }) {
               </div>
             )}
           </Col>
-          <Col xs={12} sm="auto" className="d-flex justify-content-center" onClick={(e) => e.stopPropagation()}>
+          <Col xs={12} sm={stacked ? 12 : 'auto'} className="d-flex justify-content-center" style={stacked ? { borderTop: '1px solid #dee2e6', paddingTop: 12 } : undefined} onClick={(e) => e.stopPropagation()}>
             {stamp
               ? <StampMark label={story.name} date={stamp.at.slice(5, 10)} animate={fresh} />
               : (
-                <div className="text-center" style={{ width: 150 }}>
-                  <Button onClick={onStamp} disabled={locating} className="w-100">
+                <div className="text-center" style={{ width: stacked ? '100%' : 150 }}>
+                  <Button onClick={onStamp} disabled={locating} className="w-100" size={stacked ? 'sm' : undefined} variant={stacked ? 'warning' : undefined}>
                     <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
                   </Button>
                   <div className="small text-muted mt-2" style={{ fontSize: '0.85rem' }}>{t('stampNote')}</div>
