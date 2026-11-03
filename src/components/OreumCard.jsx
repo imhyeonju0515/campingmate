@@ -41,10 +41,10 @@ export default function OreumCard({ oreum: o }) {
                 ? <StampMark label={o.name} date={stamp.at.slice(5, 10)} animate={fresh} />
                 : (
                   <div className="text-center">
-                    <Button size="sm" onClick={onStamp} disabled={locating} className="w-100">
+                    <Button onClick={onStamp} disabled={locating} className="w-100">
                       <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
                     </Button>
-                    <div className="small text-muted mt-1" style={{ maxWidth: 150, fontSize: '0.7rem' }}>{t('stampNote')}</div>
+                    <div className="small text-muted mt-2" style={{ maxWidth: 150, fontSize: '0.85rem' }}>{t('stampNote')}</div>
                   </div>
                 )}
             </Col>
