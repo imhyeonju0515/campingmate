@@ -28,7 +28,7 @@ function OreumStampCard({ oreum, t }) {
     <Card className="h-100">
       <Card.Body className="d-flex flex-column p-3">
         <div className="flex-grow-1">
-          <div className="mb-2"><OreumPhoto src={oreum.image} alt={oreum.name} elevation={oreum.elevation} /></div>
+          {oreum.image && <div className="mb-2"><OreumPhoto src={oreum.image} alt={oreum.name} /></div>}
           <div className="d-flex flex-wrap gap-1 mb-1">
             <Badge bg="success">{t('tag_oreum')}</Badge>
             <Badge bg="light" text="dark">{area(oreum.area)}</Badge>
