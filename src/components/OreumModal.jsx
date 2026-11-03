@@ -7,7 +7,11 @@ import AddressLink from './AddressLink'
 import NearCamps from './NearCamps'
 import { useStamp } from '../lib/useStamp'
 
-const pick = (obj, lang = 'ko') => obj?.[lang] ?? obj?.en ?? obj?.ko ?? ''
+const pick = (obj, lang = 'ko') => {
+  if (!obj) return ''
+  if (typeof obj === 'string') return obj // 이전 캐시 데이터와 호환
+  return obj[lang] ?? obj.en ?? obj.ko ?? ''
+}
 
 // 오름 카드 상세 모달 - 도장 기능 포함
 export default function OreumModal({ oreum, show, onHide }) {

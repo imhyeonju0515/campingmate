@@ -3,6 +3,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Html, OrbitControls, RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
+import { useAppStore } from '../store/useAppStore'
+
+const pick = (obj, lang = 'ko') => {
+  if (!obj) return ''
+  if (typeof obj === 'string') return obj // 이전 캐시 데이터와 호환
+  return obj[lang] ?? obj.en ?? obj.ko ?? ''
+}
 
 // ── 로우폴리 디오라마 ─────────────────────────────────────
 // 작은 받침대 위에 놓인 파스텔 톤 제주 미니어처. 모든 지형은 코드로 만든 삼각형(외부 모델 없음)이고,
@@ -296,6 +303,7 @@ const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', '
 // wind: { ms, vec } | null (vec = 바람이 "불어오는" 방향, 도)   selected: { kind, id } | null
 export default function Jeju3D({ camps = [], stories = [], wind = null, showCamps = true, showStories = true, selected = null, onPick, height = 480 }) {
   const controls = useRef()
+  const lang = useAppStore((s) => s.lang)
   const hasWind = wind?.ms > 0 && Number.isFinite(wind.vec)
   const to = hasWind ? ((wind.vec + 180) * Math.PI) / 180 : (90 * Math.PI) / 180     // 바람 없으면 구름은 서→동으로 느리게
   const dx = Math.sin(to), dz = -Math.cos(to)
@@ -323,13 +331,13 @@ export default function Jeju3D({ camps = [], stories = [], wind = null, showCamp
         <Html position={[0, 0.1, -4.4]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}><span style={labelStyle}>N ↑</span></Html>
 
         {showCamps && camps.map((c) => (
-          <Pin key={c.id} lat={c.lat} lng={c.lng} label={c.name}
+          <Pin key={c.id} lat={c.lat} lng={c.lng} label={pick(c.name, lang)}
             selected={selected?.kind === 'camp' && selected.id === c.id} onClick={() => onPick?.({ kind: 'camp', id: c.id })}>
             <Tent color={FIT_COLOR[c.fit ?? 'none']} />
           </Pin>
         ))}
         {showStories && stories.map((s) => (
-          <Pin key={s.id} lat={s.lat} lng={s.lng} label={s.name} bob
+          <Pin key={s.id} lat={s.lat} lng={s.lng} label={pick(s.name, lang)} bob
             selected={selected?.kind === 'story' && selected.id === s.id} onClick={() => onPick?.({ kind: 'story', id: s.id })}>
             <Orb color={s.stamped ? '#ffc93c' : TAG_COLOR[s.tag]} stamped={s.stamped} />
           </Pin>

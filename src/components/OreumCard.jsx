@@ -8,7 +8,11 @@ import { useArea, useT } from '../i18n'
 import { useStamp } from '../lib/useStamp'
 import { useAppStore } from '../store/useAppStore'
 
-const pick = (obj, lang = 'ko') => obj?.[lang] ?? obj?.en ?? obj?.ko ?? ''
+const pick = (obj, lang = 'ko') => {
+  if (!obj) return ''
+  if (typeof obj === 'string') return obj // 이전 캐시 데이터와 호환
+  return obj[lang] ?? obj.en ?? obj.ko ?? ''
+}
 
 // 오름 한 곳 (제주오름요약설명 + 한국관광공사 사진). 이야기 카드가 있는 곳은 StoryCard 를 씁니다.
 export default function OreumCard({ oreum: o }) {
