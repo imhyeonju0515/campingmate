@@ -7,10 +7,13 @@ import AddressLink from './AddressLink'
 import NearCamps from './NearCamps'
 import { useStamp } from '../lib/useStamp'
 
+const pick = (obj, lang = 'ko') => obj?.[lang] ?? obj?.en ?? obj?.ko ?? ''
+
 // 오름 카드 상세 모달 - 도장 기능 포함
 export default function OreumModal({ oreum, show, onHide }) {
   const t = useT()
   const area = useArea()
+  const lang = useAppStore((s) => s.lang)
   const { stamp, onStamp, locating, fresh } = useStamp(oreum, null)
 
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(oreum?.addrKo || oreum?.addr || `${oreum?.name} Jeju`)}`
@@ -18,7 +21,7 @@ export default function OreumModal({ oreum, show, onHide }) {
   return (
     <Modal show={show} onHide={onHide} centered scrollable>
       <Modal.Header closeButton closeLabel={t('close')}>
-        <Modal.Title className="h5 fw-bold">{oreum?.name}</Modal.Title>
+        <Modal.Title className="h5 fw-bold">{pick(oreum?.name, lang)}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {oreum?.image && <img src={oreum.image} alt={oreum.name} className="w-100 rounded mb-3" style={{ maxHeight: 260, objectFit: 'cover', border: '2px solid #000' }} />}

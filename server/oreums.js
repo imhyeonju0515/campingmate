@@ -29,7 +29,12 @@ export const getOreums = () => cached('oreums', 24 * 3600e3, async () => {
   const tour = await fetchTourImages();
   return BASE.map((o) => {
     const t = tour.get(key(o.ko));
-    return { ...o, image: t?.image ?? null, addr: t?.addr ?? `제주특별자치도 ${o.loc}` };
+    return {
+      ...o,
+      name: { ko: o.ko, en: (o.en.replace(/^./, (c) => c.toUpperCase()) + (o.ko.endsWith('오름') && !/oreum$/i.test(o.en) ? ' Oreum' : '')).trim() },
+      image: t?.image ?? null,
+      addr: t?.addr ?? `제주특별자치도 ${o.loc}`
+    };
   });
 });
 
