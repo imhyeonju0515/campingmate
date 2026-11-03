@@ -41,7 +41,7 @@ export default function MapPage() {
   const [oreums, setOreums] = useState([])
   const [error, setError] = useState('')
   const [sel, setSel] = useState(null)
-  const [layers, setLayers] = useState({ camps: true, stories: { myth: true, oreum: true, volcano: true }, oreums: true, wind: true })
+  const [layers, setLayers] = useState({ camps: true, stories: { myth: true, oreum: true, volcano: true }, wind: true })
 
   useEffect(() => {
     setError('')
@@ -59,12 +59,15 @@ export default function MapPage() {
   const fitOf = (c) => (cond[c.region] ? campFit(c.types, cond[c.region].windGrade) : null)
   const campPins = camps.map((c) => ({ ...c, fit: fitOf(c) }))
   const storyPins = stories.map((s) => ({ ...s, stamped: stamps.some((x) => x.spotId === s.id) }))
-  const oreumPins = oreums.map((o) => ({ ...o, stamped: stamps.some((x) => x.spotId === o.id) }))
-  const filteredStoryPins = storyPins.filter((s) => layers.stories[s.tag])
+  const allStoryPins = useMemo(() => [
+    ...storyPins,
+    ...oreums.map((o) => ({ ...o, tag: 'oreum', stamped: stamps.some((x) => x.spotId === o.id) }))
+  ], [storyPins, oreums, stamps])
+  const filteredStoryPins = allStoryPins.filter((s) => layers.stories[s.tag])
 
   const picked = sel?.kind === 'camp' ? campPins.find((c) => c.id === sel.id)
-    : sel?.kind === 'story' ? storyPins.find((s) => s.id === sel.id)
-    : sel?.kind === 'oreum' ? oreumPins.find((o) => o.id === sel.id) : null
+    : sel?.kind === 'story' ? allStoryPins.find((s) => s.id === sel.id) : null
+  const isOreumCard = picked && oreums.some((o) => o.id === picked.id)
   const toggle = (k) => {
     if (typeof layers[k] === 'object') {
       setLayers((l) => ({ ...l, [k]: Object.fromEntries(Object.entries(l[k]).map(([key, val]) => [key, !val])) }))
@@ -82,8 +85,8 @@ export default function MapPage() {
         <Col lg={8}>
           <Card className="overflow-hidden">
             <Suspense fallback={<Loading />}>
-              <Jeju3D camps={campPins} stories={filteredStoryPins} oreums={oreumPins} wind={layers.wind ? wind : null}
-                showCamps={layers.camps} showStories={Object.values(layers.stories).some(v => v)} showOreums={layers.oreums} selected={sel} onPick={setSel} height="min(70vh, 540px)" />
+              <Jeju3D camps={campPins} stories={filteredStoryPins} wind={layers.wind ? wind : null}
+                showCamps={layers.camps} showStories={Object.values(layers.stories).some(v => v)} selected={sel} onPick={setSel} height="min(70vh, 540px)" />
             </Suspense>
             <Card.Footer className="small text-muted"><i className="bi bi-hand-index me-1" />{t('dragHint')}</Card.Footer>
           </Card>
@@ -99,7 +102,6 @@ export default function MapPage() {
                   <Form.Check key={tag} type="checkbox" id={`story-${tag}`} label={t(`tag_${tag}`)} checked={layers.stories[tag]} onChange={() => toggleTag(tag)} style={{ fontSize: '0.85rem' }} />
                 ))}
               </div>
-              <Form.Check type="switch" id="l-oreums" label={t('tag_oreum')} checked={layers.oreums} onChange={() => toggle('oreums')} />
               <Form.Check type="switch" id="l-wind" label={t('layerWind')} checked={layers.wind} onChange={() => toggle('wind')} />
               <div className="small mt-2">
                 <i className="bi bi-wind text-info me-1" />
@@ -117,7 +119,7 @@ export default function MapPage() {
           </Card>
 
           {picked
-            ? (sel.kind === 'camp' ? <CampCard camp={picked} fit={picked.fit} /> : sel.kind === 'story' ? <StoryCard story={picked} /> : <OreumCard oreum={picked} />)
+            ? (sel.kind === 'camp' ? <CampCard camp={picked} fit={picked.fit} /> : isOreumCard ? <OreumCard oreum={picked} /> : <StoryCard story={picked} />)
             : <Card body className="text-muted small text-center">{t('pickHint')}</Card>}
         </Col>
       </Row>

@@ -292,9 +292,9 @@ function Rig({ controls, focus, focusKey }) {
 const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
 
 // ── 장면 ────────────────────────────────────────────────
-// camps: [{ id, name, lat, lng, fit }]  stories: [{ id, name, lat, lng, tag, stamped }]  oreums: [{ id, name, lat, lng, stamped }]
+// camps: [{ id, name, lat, lng, fit }]  stories: [{ id, name, lat, lng, tag, stamped }]
 // wind: { ms, vec } | null (vec = 바람이 "불어오는" 방향, 도)   selected: { kind, id } | null
-export default function Jeju3D({ camps = [], stories = [], oreums = [], wind = null, showCamps = true, showStories = true, showOreums = true, selected = null, onPick, height = 480 }) {
+export default function Jeju3D({ camps = [], stories = [], wind = null, showCamps = true, showStories = true, selected = null, onPick, height = 480 }) {
   const controls = useRef()
   const hasWind = wind?.ms > 0 && Number.isFinite(wind.vec)
   const to = hasWind ? ((wind.vec + 180) * Math.PI) / 180 : (90 * Math.PI) / 180     // 바람 없으면 구름은 서→동으로 느리게
@@ -332,12 +332,6 @@ export default function Jeju3D({ camps = [], stories = [], oreums = [], wind = n
           <Pin key={s.id} lat={s.lat} lng={s.lng} label={s.name} bob
             selected={selected?.kind === 'story' && selected.id === s.id} onClick={() => onPick?.({ kind: 'story', id: s.id })}>
             <Orb color={s.stamped ? '#ffc93c' : TAG_COLOR[s.tag]} stamped={s.stamped} />
-          </Pin>
-        ))}
-        {showOreums && oreums.map((o) => (
-          <Pin key={o.id} lat={o.lat} lng={o.lng} label={o.name}
-            selected={selected?.kind === 'oreum' && selected.id === o.id} onClick={() => onPick?.({ kind: 'oreum', id: o.id })}>
-            <Orb color={o.stamped ? '#ffc93c' : '#8cc98a'} stamped={o.stamped} />
           </Pin>
         ))}
 
