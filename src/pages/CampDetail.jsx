@@ -23,28 +23,33 @@ function OreumStampCard({ oreum, t }) {
   const { stamp, onStamp, locating, fresh } = useStamp(oreum, null)
 
   return (
-    <Card className="h-100">
-      <Card.Body className="d-flex flex-column gap-2 p-3">
-        {oreum.image && <img src={oreum.image} alt={oreum.name} loading="lazy" className="rounded" style={{ height: 120, objectFit: 'cover', border: '2px solid #000' }} />}
-        <div>
-          <div className="fw-bold">{oreum.name}</div>
-          <div className="small"><i className="bi bi-geo-alt-fill text-primary me-1" />{oreum.km} km</div>
-          <div className="d-flex flex-wrap gap-1 my-1">
+    <Card style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <Card.Body className="d-flex flex-column gap-3 p-3" style={{ flex: 1 }}>
+        {oreum.image && <img src={oreum.image} alt={oreum.name} loading="lazy" className="rounded" style={{ height: 120, objectFit: 'cover', border: '2px solid #000', width: '100%' }} />}
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div className="fw-bold mb-1">{oreum.name}</div>
+          <div className="small mb-2"><i className="bi bi-geo-alt-fill text-primary me-1" />{oreum.km} km</div>
+          <div className="d-flex flex-wrap gap-1 mb-2">
             <Badge bg="light" text="dark" className="small">{t('oreumEle')} {oreum.elevation} m</Badge>
             <Badge bg="light" text="dark" className="small">{t('oreumRel')} {oreum.relHeight} m</Badge>
           </div>
-          {oreum.desc && <div className="small text-muted">{oreum.desc}</div>}
-          <div className="small"><AddressLink addr={oreum.addr} ko={oreum.addrKo} /></div>
+          {oreum.desc && <div className="small text-muted" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{oreum.desc}</div>}
+          <div className="small mt-2"><AddressLink addr={oreum.addr} ko={oreum.addrKo} /></div>
         </div>
-        <div className="mt-auto pt-2 border-top">
+        <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '12px', marginTop: '12px' }}>
           {stamp
             ? <StampMark label={oreum.name} date={stamp.at.slice(5, 10)} animate={fresh} />
             : (
-              <div className="d-grid">
-                <Button size="sm" onClick={onStamp} disabled={locating}>
+              <div className="w-100">
+                <button
+                  onClick={onStamp}
+                  disabled={locating}
+                  className="btn btn-warning w-100 btn-sm"
+                  style={{ fontWeight: '500', fontSize: '14px', padding: '8px 12px' }}
+                >
                   <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
-                </Button>
-                <div className="small text-muted text-center mt-2" style={{ fontSize: '0.80rem' }}>{t('stampNote')}</div>
+                </button>
+                <div className="small text-muted text-center mt-2" style={{ fontSize: '0.75rem' }}>{t('stampNote')}</div>
               </div>
             )}
         </div>
@@ -128,10 +133,15 @@ export default function CampDetail() {
           ))}
           {nearby.map((p) => (
             <Col key={`tour-${p.id}`}>
-              <Card><Card.Body className="d-flex gap-3 p-2">
-                {p.image && <img src={p.image} alt="" loading="lazy" className="rounded" style={{ width: 64, height: 64, objectFit: 'cover' }} />}
-                <div className="min-w-0"><div className="fw-bold small text-truncate">{p.title}</div><div className="small text-truncate"><AddressLink addr={p.addr} /></div></div>
-              </Card.Body></Card>
+              <Card style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+                <Card.Body className="d-flex flex-column gap-3 p-3" style={{ flex: 1 }}>
+                  {p.image && <img src={p.image} alt="" loading="lazy" className="rounded" style={{ height: 120, objectFit: 'cover', border: '2px solid #000', width: '100%' }} />}
+                  <div style={{ flex: 1 }}>
+                    <div className="fw-bold mb-1">{p.title}</div>
+                    <div className="small"><AddressLink addr={p.addr} /></div>
+                  </div>
+                </Card.Body>
+              </Card>
             </Col>
           ))}
         </Row>
