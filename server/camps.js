@@ -78,9 +78,11 @@ const shapeStory = (s, lang, km) => ({
 });
 
 // 스팟(오름·화산·신화)에서 가까운 캠핑장 n곳 — 거리는 직선거리(km)입니다. 이동 시간은 데이터가 없어 계산하지 않습니다
+export const NEAR_KM = 6   // 목록에는 캠핑장이 이 반경(km) 안에 있는 스팟만 보여 줍니다
 function campsNearSpot(s, camps, lang, n = 3) {
   return camps
     .map((c) => ({ c, km: distKm(s.lat, s.lng, c.lat, c.lng) }))
+    .filter(({ km }) => km <= NEAR_KM)
     .sort((a, b) => a.km - b.km).slice(0, n)
     .map(({ c, km }) => { const l = localizeCamp(c, lang); return { id: l.id, name: l.name, region: l.region, types: l.types, km: Math.round(km * 10) / 10 }; });
 }
@@ -88,7 +90,8 @@ function campsNearSpot(s, camps, lang, n = 3) {
 export async function listStories({ lang = 'ko', tag = '', area = '' } = {}) {
   const camps = await allCamps(lang);
   return STORIES.filter((s) => (!tag || s.tag === tag) && (!area || s.area === area))
-    .map((s) => ({ ...shapeStory(s, lang), camps: campsNearSpot(s, camps, lang) }));
+    .map((s) => ({ ...shapeStory(s, lang), camps: campsNearSpot(s, camps, lang) }))
+    .filter((s) => s.camps.length > 0);
 }
 
 // 캠핑장에서 가까운 순으로 오름·신화 스토리 n개
