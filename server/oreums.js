@@ -6,6 +6,8 @@ import { cached } from './cache.js';
 import { localizeAddr } from './addr.js';
 import BASE from './data/oreums.json' with { type: 'json' };   // 정적 import 라서 Vercel 이 함수에 파일을 확실히 포함시킴
 
+import { DESC_TR } from './data/translations.js';
+
 // TourAPI 목록에서 사진·주소 가져오기 (실패하면 빈 목록 — 그래도 오름 정보는 나옴)
 async function fetchTourImages() {
   if (!process.env.DATA_GO_KR_KEY) return new Map();
@@ -38,6 +40,15 @@ export function oreumName(o, lang) {
   return o.ko.endsWith('오름') && !/oreum$/i.test(en) ? `${en} Oreum` : en;
 }
 
+// 다국어 설명 추출 (한국어만 있으면 번역 파일에서 찾기)
+export function getDesc(o, lang) {
+  if (lang === 'ko') return o.desc || '';
+  if (typeof o.desc === 'object') return o.desc[lang] || '';
+  // translations.js에서 번역 찾기
+  const tr = DESC_TR[o.id]?.[lang];
+  return tr || '';
+}
+
 const rad = (d) => (d * Math.PI) / 180;
 export const distKm = (aLat, aLng, bLat, bLng) => 12742 * Math.asin(Math.sqrt(
   Math.sin(rad(bLat - aLat) / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLng - aLng) / 2) ** 2));
@@ -51,7 +62,7 @@ export async function oreumsNear(lat, lng, lang = 'ko', n = 5) {
     .map(({ o, km }) => ({
       id: o.id, name: oreumName(o, lang), km: Math.round(km * 10) / 10, image: o.image,
       elevation: o.ele, relHeight: o.rel,                 // 표고(m) · 비고(오름 자체 높이, m)
-      desc: lang === 'ko' ? o.desc : undefined,           // 설명은 한국어뿐
+      desc: getDesc(o, lang),
       addr: localizeAddr(o.addr, lang), addrKo: lang === 'ko' ? undefined : o.addr,
     }));
 }
