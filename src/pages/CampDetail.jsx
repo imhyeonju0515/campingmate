@@ -1,20 +1,57 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Alert, Badge, Card, Col, Row } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Row } from 'react-bootstrap'
 import ConditionCard from '../components/ConditionCard'
 import StoryCard from '../components/StoryCard'
 import ReserveCard from '../components/ReserveCard'
 import ForecastStrip from '../components/ForecastStrip'
 import FavButton from '../components/FavButton'
 import AddressLink from '../components/AddressLink'
+import StampMark from '../components/StampMark'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchCamp, fetchCondition } from '../api/client'
 import { campFit } from '../../server/wind.js'
 import { useArea, useT } from '../i18n'
 import { useAppStore } from '../store/useAppStore'
+import { useStamp } from '../lib/useStamp'
 
 const FIT_VARIANT = { good: 'success', caution: 'warning', avoid: 'danger' }
 const TYPE_KEY = { normal: 't_normal', car: 't_car', glamp: 't_glamp', caravan: 't_caravan' }
+
+// 오름 + 도장찍기 카드
+function OreumStampCard({ oreum, t }) {
+  const { stamp, onStamp, locating, fresh } = useStamp(oreum, null)
+
+  return (
+    <Card className="h-100">
+      <Card.Body className="d-flex flex-column gap-2 p-3">
+        {oreum.image && <img src={oreum.image} alt={oreum.name} loading="lazy" className="rounded" style={{ height: 120, objectFit: 'cover', border: '2px solid #000' }} />}
+        <div>
+          <div className="fw-bold">{oreum.name}</div>
+          <div className="small"><i className="bi bi-geo-alt-fill text-primary me-1" />{oreum.km} km</div>
+          <div className="d-flex flex-wrap gap-1 my-1">
+            <Badge bg="light" text="dark" className="small">{t('oreumEle')} {oreum.elevation} m</Badge>
+            <Badge bg="light" text="dark" className="small">{t('oreumRel')} {oreum.relHeight} m</Badge>
+          </div>
+          {oreum.desc && <div className="small text-muted">{oreum.desc}</div>}
+          <div className="small"><AddressLink addr={oreum.addr} ko={oreum.addrKo} /></div>
+        </div>
+        <div className="mt-auto pt-2 border-top">
+          {stamp
+            ? <StampMark label={oreum.name} date={stamp.at.slice(5, 10)} animate={fresh} />
+            : (
+              <div className="d-grid">
+                <Button size="sm" onClick={onStamp} disabled={locating}>
+                  <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
+                </Button>
+                <div className="small text-muted text-center mt-2" style={{ fontSize: '0.80rem' }}>{t('stampNote')}</div>
+              </div>
+            )}
+        </div>
+      </Card.Body>
+    </Card>
+  )
+}
 
 export default function CampDetail() {
   const { id } = useParams()
@@ -78,51 +115,28 @@ export default function CampDetail() {
       <h5 className="fw-bold mb-3"><i className="bi bi-calendar-week text-primary me-2" />{t('forecastTitle')}</h5>
       <div className="mb-4"><ForecastStrip place={camp.region} types={camp.types} /></div>
 
-      {oreums.length > 0 && (
-        <>
-          <h5 className="fw-bold mb-1"><i className="bi bi-triangle-fill text-primary me-2" />{t('nearOreums')}</h5>
-          <div className="small text-muted mb-3">{t('oreumSrc')} · {t('straightNote')}</div>
-          <Row xs={1} sm={2} lg={3} className="g-3 mb-4">
-            {oreums.map((o) => (
-              <Col key={o.id}>
-                <Card><Card.Body className="d-flex gap-3 p-2">
-                  {o.image && <img src={o.image} alt="" loading="lazy" className="rounded flex-shrink-0" style={{ width: 72, height: 72, objectFit: 'cover', border: '2px solid #000' }} />}
-                  <div className="min-w-0">
-                    <div className="fw-bold">{o.name}</div>
-                    <div className="small"><i className="bi bi-geo-alt-fill text-primary" /> {o.km} km</div>
-                    <div className="d-flex flex-wrap gap-1 my-1">
-                      <Badge bg="light" text="dark">{t('oreumEle')} {o.elevation} m</Badge>
-                      <Badge bg="light" text="dark">{t('oreumRel')} {o.relHeight} m</Badge>
-                    </div>
-                    {o.desc && <div className="small text-muted mb-1">{o.desc}</div>}
-                    <div className="small"><AddressLink addr={o.addr} ko={o.addrKo} /></div>
-                  </div>
-                </Card.Body></Card>
-              </Col>
-            ))}
-          </Row>
-        </>
-      )}
-
-      <h5 className="fw-bold mb-3"><i className="bi bi-signpost-2-fill text-primary me-2" />{t('nearStories')}</h5>
-      <Row xs={1} className="g-3 mb-4">
-        {stories.map((s) => <Col key={s.id}><StoryCard story={s} campId={camp.id} /></Col>)}
-      </Row>
-
-      {nearby.length > 0 && (
-        <>
-          <h5 className="fw-bold mb-3">{t('nearTour')}</h5>
-          <Row xs={1} sm={2} lg={3} className="g-3">
-            {nearby.map((p) => (
-              <Col key={p.id}>
-                <Card><Card.Body className="d-flex gap-3 p-2">
-                  {p.image && <img src={p.image} alt="" loading="lazy" className="rounded" style={{ width: 64, height: 64, objectFit: 'cover' }} />}
-                  <div className="min-w-0"><div className="fw-bold small text-truncate">{p.title}</div><div className="small text-truncate"><AddressLink addr={p.addr} /></div></div>
-                </Card.Body></Card>
-              </Col>
-            ))}
-          </Row>
-        </>
+      <h5 className="fw-bold mb-3"><i className="bi bi-triangle-fill text-primary me-2" />{t('nearOreums')} & {t('nearStories')}</h5>
+      {(oreums.length > 0 || stories.length > 0 || nearby.length > 0) ? (
+        <Row xs={1} sm={2} lg={3} className="g-3 mb-4">
+          {oreums.map((o) => (
+            <Col key={`oreum-${o.id}`}>
+              <OreumStampCard oreum={o} t={t} />
+            </Col>
+          ))}
+          {stories.map((s) => (
+            <Col key={`story-${s.id}`}><StoryCard story={s} campId={camp.id} /></Col>
+          ))}
+          {nearby.map((p) => (
+            <Col key={`tour-${p.id}`}>
+              <Card><Card.Body className="d-flex gap-3 p-2">
+                {p.image && <img src={p.image} alt="" loading="lazy" className="rounded" style={{ width: 64, height: 64, objectFit: 'cover' }} />}
+                <div className="min-w-0"><div className="fw-bold small text-truncate">{p.title}</div><div className="small text-truncate"><AddressLink addr={p.addr} /></div></div>
+              </Card.Body></Card>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <div className="text-muted small mb-4">{t('noNearby')}</div>
       )}
     </>
   )
