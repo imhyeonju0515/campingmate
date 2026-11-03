@@ -46,8 +46,8 @@ export default function OreumModal({ oreum, show, onHide }) {
         {stamp
           ? <StampMark label={oreum?.name} date={stamp.at.slice(5, 10)} animate={fresh} />
           : (
-            <div className="text-center">
-              <Button variant="primary" onClick={onStamp} disabled={locating}>
+            <div className="text-center" style={{ width: 150 }}>
+              <Button variant="primary" onClick={onStamp} disabled={locating} className="w-100">
                 <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
               </Button>
               <div className="small text-muted mt-2" style={{ fontSize: '0.85rem' }}>{t('stampNote')}</div>

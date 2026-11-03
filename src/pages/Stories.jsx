@@ -4,7 +4,6 @@ import { Button, ButtonGroup, Col, Form, Row } from 'react-bootstrap'
 import PageHeader from '../components/PageHeader'
 import StoryCard from '../components/StoryCard'
 import OreumCard from '../components/OreumCard'
-import SeasonSelector from '../components/SeasonSelector'
 import { Empty, ErrorAlert, Loading } from '../components/Status'
 import { fetchOreums, fetchStories } from '../api/client'
 import { useT } from '../i18n'
@@ -19,7 +18,6 @@ export default function Stories() {
   const lang = useAppStore((s) => s.lang)
   const [params] = useSearchParams()   // /stories?spot=s-sanbang → 그 카드로 스크롤하고 상세 창을 엽니다
   const spot = params.get('spot')
-  const [season, setSeason] = useState('AUTUMN')
   const [tag, setTag] = useState('')
   const [q, setQ] = useState('')
   const [limit, setLimit] = useState(PAGE)
@@ -54,7 +52,6 @@ export default function Stories() {
   return (
     <>
       <PageHeader icon="book" title={t('storiesTitle')} subtitle={t('storiesSub')} />
-      <SeasonSelector season={season} onSeasonChange={setSeason} />
       <div className="d-flex flex-wrap gap-2 mb-3">
         <ButtonGroup className="flex-wrap">
           {TAGS.map((x) => (

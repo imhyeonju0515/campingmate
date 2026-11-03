@@ -48,15 +48,15 @@ export default function StoryCard({ story, campId, defaultOpen = false }) {
               </div>
             )}
           </Col>
-          <Col xs={12} sm="auto" className="d-flex justify-content-center" style={{ minWidth: 110 }} onClick={(e) => e.stopPropagation()}>
+          <Col xs={12} sm="auto" className="d-flex justify-content-center" onClick={(e) => e.stopPropagation()}>
             {stamp
               ? <StampMark label={story.name} date={stamp.at.slice(5, 10)} animate={fresh} />
               : (
-                <div className="text-center">
-                  <Button onClick={onStamp} disabled={locating}>
+                <div className="text-center" style={{ width: 150 }}>
+                  <Button onClick={onStamp} disabled={locating} className="w-100">
                     <i className={`bi bi-${locating ? 'hourglass-split' : 'geo-alt-fill'} me-1`} />{locating ? t('stampLocating') : t('stamp')}
                   </Button>
-                  <div className="small text-muted mt-1" style={{ maxWidth: 150 }}>{t('stampNote')}</div>
+                  <div className="small text-muted mt-2" style={{ fontSize: '0.85rem' }}>{t('stampNote')}</div>
                 </div>
               )}
           </Col>
